@@ -78,4 +78,9 @@ class FacultySpider(scrapy.Spider):
             ).getall()
         ).strip()
 
+        item["website_links"] = response.css(
+            "div.field--name-field-sites a::attr(href)"
+        ).getall()
+        
+        
         yield item
