@@ -1,16 +1,29 @@
+from urllib.parse import urlparse
 import scrapy
 from faculty_finder.items import FacultyFinderItem
 
 class FacultySpider(scrapy.Spider):
     name = "faculty"
-    start_urls = ["https://www.daiict.ac.in/faculty"]
+    start_urls = [
+        "https://www.daiict.ac.in/faculty",
+        "https://www.daiict.ac.in/adjunct-faculty",
+        "https://www.daiict.ac.in/adjunct-faculty-international",
+        "https://www.daiict.ac.in/distinguished-professor",
+        "https://www.daiict.ac.in/professor-practice"
+                  
+                  ]
 
     def parse(self, response):
+
+        path = urlparse(response.url).path.strip("/")
+        faculty_type = path if path else "faculty"
+
         for faculty in response.css("div.facultyDetails"):
             item = FacultyFinderItem()
+            item["faculty_type"] = faculty_type
 
             item["name"] = faculty.css(
-                "div.personalDetails h3 a::text"
+            "h3 a::text"
             ).get(default="").strip()
 
             item["education"] = faculty.css(
