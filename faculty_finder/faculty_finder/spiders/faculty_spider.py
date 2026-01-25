@@ -10,134 +10,101 @@ class FacultySpider(scrapy.Spider):
         "https://www.daiict.ac.in/adjunct-faculty-international",
         "https://www.daiict.ac.in/distinguished-professor",
         "https://www.daiict.ac.in/professor-practice"         
-        ]
+    ]
 
     def parse(self, response):
-
+        """
+        Main parser - scrapes the faculty listing page
+        Gets basic info and follows profile links
+        """
+        # Get faculty type from URL (like "faculty", "adjunct-faculty", etc)
         path = urlparse(response.url).path.strip("/")
         faculty_type = path if path else "faculty"
 
+        # Loop through each faculty card on the page
         for faculty in response.css("div.facultyDetails"):
             item = FacultyFinderItem()
             item["faculty_type"] = faculty_type
 
-            item["name"] = faculty.css(
-            "h3 a::text"
-            ).get(default="").strip()
+            # Extract basic info from listing page
+            item["name"] = faculty.css("h3 a::text").get(default="").strip()
+            item["education"] = faculty.css("div.facultyEducation::text").get(default="").strip()
+            item["phone"] = faculty.css("span.facultyNumber::text").get(default="").strip()
+            item["address"] = faculty.css("span.facultyAddress::text").get(default="").strip()
+            item["email"] = faculty.css("span.facultyemail::text").get(default="").strip()
+            item["specializations"] = faculty.css("div.areaSpecialization p::text").get(default="").strip()
 
-            item["education"] = faculty.css(
-                "div.facultyEducation::text"
-            ).get(default="").strip()
-
-            item["phone"] = faculty.css(
-                "span.facultyNumber::text"
-            ).get(default="").strip()
-
-            item["address"] = faculty.css(
-                "span.facultyAddress::text"
-            ).get(default="").strip()
-
-            item["email"] = faculty.css(
-                "span.facultyemail::text"
-            ).get(default="").strip()
-
-            item["specializations"] = faculty.css(
-                "div.areaSpecialization p::text"
-            ).get(default="").strip()
-
-            # follow profile link
-            profile_url = faculty.css(
-                "div.personalDetails h3 a::attr(href)"
-            ).get()
+            # Get profile link - use simpler selector that works for all faculty
+            profile_url = faculty.css("h3 a::attr(href)").get()
 
             if profile_url:
+                # Follow the profile link to get detailed info
                 yield response.follow(
                     profile_url,
                     callback=self.parse_profile,
-                    meta={"item": item},
+                    meta={"item": item},  # Pass the item along
                 )
             else:
+                # No profile link? Just yield what we have
                 yield item
 
     def parse_profile(self, response):
+        """
+        Profile page parser - gets detailed info like biography, publications, etc
+        """
+        # Get the item we passed from parse()
         item = response.meta["item"]
 
-        # Biography - using correct Drupal field selector
-        biography_text = " ".join(
-            response.css(
-                "div.field--name-field-biography .field__item *::text"
-            ).getall()
-        ).strip()
-        if biography_text:
-            item["biography"] = biography_text
+        # === BIOGRAPHY ===
+        # Try multiple selectors because website structure varies
+        bio_parts = response.css("div.field--name-field-biography *::text").getall()
+        if bio_parts:
+            item["biography"] = " ".join([t.strip() for t in bio_parts if t.strip()])
         else:
-            item["biography"] = ""
+            # Fallback: try simpler selector
+            bio_text = response.css("div.field--name-field-biography::text").get(default="").strip()
+            item["biography"] = bio_text if bio_text else ""
 
-        # Teaching - using correct Drupal field selector
-        teaching_list = response.css(
-            "div.field--name-field-teaching .field__item *::text"
-        ).getall()
+        # === TEACHING ===
+        teaching_list = response.css("div.field--name-field-teaching *::text").getall()
         if teaching_list:
             item["teaching"] = [t.strip() for t in teaching_list if t.strip()]
         else:
             item["teaching"] = []
 
-        # Specialization/Research - using the work-exp div after specializationIcon
-        specialization_text = " ".join(
-            response.css(
-                "div.work-exp *::text"
-            ).getall()
-        ).strip()
-        
-        # If specialization is found on profile, update it (override listing page value)
-        if specialization_text:
-            item["specializations"] = specialization_text
-            item["research"] = specialization_text
+        # === RESEARCH/SPECIALIZATION ===
+        # Check the work-exp div for research areas
+        research_parts = response.css("div.work-exp *::text").getall()
+        if research_parts:
+            research_text = " ".join([t.strip() for t in research_parts if t.strip()])
+            item["specializations"] = research_text  # Update with profile page data
+            item["research"] = research_text
         else:
-            # Keep the value from listing page if it exists
-            if "research" not in item:
-                item["research"] = ""
+            # Keep listing page value if no research found on profile
+            item["research"] = item.get("specializations", "")
 
-        # Publications - check multiple possible selectors
-        publications = []
+        # === PUBLICATIONS ===
+        # Try multiple selectors
+        pubs = []
         
-        # Try first selector: div.education.overflowContent
-        pubs_from_education = [
-            pub.strip()
-            for pub in response.css(
-                "div.education.overflowContent li::text"
-            ).getall()
-            if pub.strip()
-        ]
+        # Selector 1: div.education.overflowContent
+        pubs = [p.strip() for p in response.css("div.education.overflowContent li::text").getall() if p.strip()]
         
-        if pubs_from_education:
-            publications = pubs_from_education
-        else:
-            # Try alternative selector
-            pubs_from_field = [
-                pub.strip()
-                for pub in response.css(
-                    "div.field--name-field-publications li::text"
-                ).getall()
-                if pub.strip()
-            ]
-            publications = pubs_from_field
+        if not pubs:
+            # Selector 2: field--name-field-publications
+            pubs = [p.strip() for p in response.css("div.field--name-field-publications li::text").getall() if p.strip()]
         
-        item["publications"] = publications
+        item["publications"] = pubs
 
-        # Website links - look for external links in biography or dedicated field
-        website_links = response.css(
-            "div.field--name-field-biography a[href*='http']::attr(href)"
-        ).getall()
+        # === WEBSITE LINKS ===
+        # Look for external links in biography or dedicated field
+        links = response.css("div.field--name-field-biography a[href*='http']::attr(href)").getall()
+        if not links:
+            links = response.css("div.field--name-field-sites a::attr(href)").getall()
         
-        # Also check for any other external links in the profile
-        if not website_links:
-            website_links = response.css(
-                "div.field--name-field-sites a::attr(href)"
-            ).getall()
-        
-        item["website_links"] = website_links
-        
-        self.logger.info(f"Extracted profile for: {item.get('name', 'Unknown')}")
+        item["website_links"] = links
+
+        # Log what we extracted (helpful for debugging)
+        self.logger.info(f"✓ Extracted profile for: {item.get('name', 'Unknown')}")
         
         yield item
