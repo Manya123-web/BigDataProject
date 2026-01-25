@@ -59,6 +59,18 @@ def get_faculty(faculty_id: int, db: Session = Depends(get_db)):
 
     return parse_row(row)
 
+@app.get("/faculty/name/{faculty_name}", response_model=List[FacultyOut])
+def get_by_name(faculty_name: str, db: Session = Depends(get_db)):
+    result = db.execute(
+        text("""
+            SELECT * FROM faculty
+            WHERE LOWER(name) LIKE LOWER(:name)
+        """),
+        {"name": f"%{faculty_name}%"}
+    )
+    rows = result.mappings().all()
+    return [parse_row(row) for row in rows]
+
 
 @app.get("/faculty/type/{faculty_type}", response_model=List[FacultyOut])
 def get_by_type(faculty_type: str, db: Session = Depends(get_db)):
