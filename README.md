@@ -2820,3 +2820,38 @@ This project was developed as a learning exercise. Contributions for improvement
 **Difficulty**: Beginner to Intermediate  
 **Estimated Time**: 8-10 hours  
 **Skills Gained**: Web scraping, data cleaning, SQL, REST APIs
+
+
+---
+
+**Project Type**: Data Engineering Pipeline  
+**Difficulty**: Beginner to Intermediate  
+**Estimated Time**: 8-10 hours  
+**Skills Gained**: Web scraping, data cleaning, SQL, REST APIs
+
+
+---
+
+Here you go — **clean, minimal, and GitHub-ready**.
+You can copy-paste this directly into your `README.md`.
+
+---
+
+## Project Authors
+
+This project was collaboratively developed as part of an academic data engineering assignment.
+
+### Team Members
+
+**Manya Choradiya**
+
+* College ID: `202518021`
+* GitHub: [https://github.com/](https://github.com/)<Manya123-web>
+* LinkedIn: [https://www.linkedin.com/in/](https://www.linkedin.com/in/)<manya-choradiya-383651361>
+
+**Ambuj Tripathi**
+
+* College ID: `202518021`
+* GitHub: [https://github.com/](https://github.com/)<Shaneat8>
+* LinkedIn: [https://www.linkedin.com/in/](https://www.linkedin.com/in/)<ambujtripathi41>
+
