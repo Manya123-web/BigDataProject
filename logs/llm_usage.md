@@ -6,22 +6,22 @@ This document tracks all interactions with ChatGPT (GPT-4) during the Faculty Fi
 
 ## Session Overview
 
-**LLM Tool Used**: ChatGPT (GPT-4)  
-**Total Sessions**: 4  
-**Date Range**: [Your project dates]  
+**LLM Tool Used**: ChatGPT (GPT-5.2)  
+**Total Sessions**: 5   
 **Purpose**: Learning assistance, debugging, and syntax guidance
 
 **Key Areas Where LLM Was Used**:
-1. Web scraping logic and Scrapy CSS selectors
-2. Data cleaning strategies
+1. Selecting Scrapy CSS selectors
+2. Data cleaning strategies with Industry standards
 3. FastAPI setup and syntax
 4. Documentation formatting
 
 **Key Areas Completed Independently**:
-1. SQLite database connection and schema design
-2. Data transformation logic implementation
-3. Overall project architecture decisions
-4. Testing and validation
+1. Web Scraping 
+2. SQLite database connection and schema design
+3. Data transformation logic implementation
+4. Overall project architecture decisions
+5. Testing and validation
 
 ---
 
@@ -29,29 +29,45 @@ This document tracks all interactions with ChatGPT (GPT-4) during the Faculty Fi
 
 ### Problem Context
 
-I needed to scrape faculty data from DA-IICT website but was struggling with:
-- Understanding Scrapy project structure
+I had worked with scrapy and to increase the speed of project used LLM to find suitable selectors by giving it the list of items i will store and html structure of the site to be scraped, Further assistance was required for:
 - Writing correct CSS selectors for nested HTML
-- Handling pagination across multiple faculty categories
-- Missing data fields (specializations, publications not extracting)
+- Handling pagination across multiple faculty categories (providing the instructions of what to fetch )
+- Missing and Incorrect data fields (specializations, publications not extracting)
+- One Faculty had different structure from others so changes accordingly
 
 ### Query to ChatGPT
 
 **Prompt**:
 ```
-I'm trying to scrape faculty information from a college website using Scrapy. 
-The website has faculty profiles with name, email, education, and research interests. 
-I've written basic code but it's not extracting specializations and publications. 
-Here's my current spider code:
+I am scarping data from DAIICT website about faculty information , aldready setup with scapry and these are the list of items to be fetched
+
+import scrapy
+class FacultyFinderItem(scrapy.Item):
+    # define the fields for your item here like:
+    name = scrapy.Field()
+    address = scrapy.Field()
+    email = scrapy.Field()
+    phone = scrapy.Field()
+    education = scrapy.Field()
+    biography = scrapy.Field()
+    specializations = scrapy.Field()
+    teaching = scrapy.Field()
+    publications = scrapy.Field()
+    research = scrapy.Field()
+    website_links = scrapy.Field()
+    faculty_type = scrapy.Field()
+    
+    pass
+```
+:
 
 [pasted initial spider code]
 
-The HTML structure for specializations looks like:
-<div class="field--name-field-specializations">
-  <div class="field__item">Machine Learning, AI</div>
-</div>
+The HTML structure for the site looks like:
 
-How do I fix my selectors to extract this data?
+[pasted HTML structure ]
+
+
 ```
 
 ### ChatGPT Response Summary
@@ -90,6 +106,7 @@ After understanding the selector pattern, I:
 2. Added error handling for missing fields
 3. Implemented fallback selectors for inconsistent HTML structure
 4. Created the iteration logic to visit all faculty profile pages
+5. Verified the scraped data
 
 ---
 
@@ -109,7 +126,7 @@ After scraping, I had messy data:
 ```
 I have scraped faculty data but emails are formatted as "name[at]domain[dot]com" 
 and phone numbers are mixed (both mobile and landline in one string). 
-How do I clean this data using Pandas? 
+How do I clean this data using Pandas and in a industry accepted manner? 
 
 Also, some text has encoding issues like â€œ instead of quotes. 
 What's the best approach to fix this?
@@ -234,7 +251,7 @@ df.to_sql("faculty", con=engine, if_exists="replace", index=False)
 
 ### Problem Context
 
-I wanted to create REST API endpoints but had never used FastAPI before. I needed to understand:
+I wanted to create REST API endpoints but had never used FastAPI before. I needed the understanding of:
 - Basic FastAPI project structure
 - How to connect to SQLite database
 - Defining response models with Pydantic
@@ -494,6 +511,5 @@ All core logic, architecture, and implementation decisions were made independent
 
 ---
 
-**Total Tokens Used**: Approximately 15,000 tokens across all sessions  
-**Time Saved**: Estimated 4-5 hours of documentation reading  
+**Time Saved**: Reduced initial learning curve for unfamiliar tools such as FastAPI and advanced Scrapy selectors
 **Skills Gained**: FastAPI, advanced Pandas, Pydantic, REST API design

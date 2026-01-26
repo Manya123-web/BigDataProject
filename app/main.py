@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import List
+from enum import Enum
 import json
 
 from app.db import get_db
@@ -21,9 +22,6 @@ JSON_FIELDS = {
 
 
 def parse_row(row: dict) -> dict:
-    """
-    Safely converts SQL row -> dict and parses JSON fields
-    """
     data = dict(row)
 
     for field in JSON_FIELDS:
@@ -42,7 +40,7 @@ def parse_row(row: dict) -> dict:
 @app.get("/faculty", response_model=List[FacultyOut])
 def get_all_faculty(db: Session = Depends(get_db)):
     result = db.execute(text("SELECT * FROM faculty"))
-    rows = result.mappings().all()   # IMPORTANT
+    rows = result.mappings().all()
     return [parse_row(row) for row in rows]
 
 
@@ -59,6 +57,7 @@ def get_faculty(faculty_id: int, db: Session = Depends(get_db)):
 
     return parse_row(row)
 
+
 @app.get("/faculty/name/{faculty_name}", response_model=List[FacultyOut])
 def get_by_name(faculty_name: str, db: Session = Depends(get_db)):
     result = db.execute(
@@ -72,11 +71,22 @@ def get_by_name(faculty_name: str, db: Session = Depends(get_db)):
     return [parse_row(row) for row in rows]
 
 
+class FacultyType(str, Enum):
+    faculty = "faculty"
+    adjunct_faculty = "adjunct-faculty"
+    adjunct_faculty_international = "adjunct-faculty-international"
+    distinguished_professor = "distinguished-professor"
+    professor_practice = "professor-practice"
+
+
 @app.get("/faculty/type/{faculty_type}", response_model=List[FacultyOut])
-def get_by_type(faculty_type: str, db: Session = Depends(get_db)):
+def get_by_type(
+    faculty_type: FacultyType,
+    db: Session = Depends(get_db)
+):
     result = db.execute(
         text("SELECT * FROM faculty WHERE faculty_type = :t"),
-        {"t": faculty_type}
+        {"t": faculty_type.value}
     )
     rows = result.mappings().all()
     return [parse_row(row) for row in rows]

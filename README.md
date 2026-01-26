@@ -54,17 +54,21 @@ Imagine you want to find all professors working on "machine learning" at your co
 
 ## Technologies Used
 
-| Tool | Purpose | Why This Tool? |
-|------|---------|----------------|
-| Scrapy | Web scraping | Industry-standard for crawling websites efficiently |
-| Pandas | Data cleaning | Best tool for transforming messy data |
-| SQLite | Database | No installation needed, perfect for learning |
-| FastAPI | REST API | Modern Python framework with auto-generated documentation |
-| Jupyter Notebook | Data exploration | Interactive environment for testing cleaning logic |
+| Tool             | Purpose          | Why This Tool?                                                                               |
+| ---------------- | ---------------- | -------------------------------------------------------------------------------------------- |
+| Scrapy           | Web scraping     | Industry-standard framework for crawling and extracting structured web data                  |
+| Pandas           | Data cleaning    | Powerful and flexible library for transforming and validating messy datasets                 |
+| SQLite           | Database         | Lightweight, serverless database ideal for learning and prototyping                          |
+| SQLAlchemy       | Database ORM     | Provides a Pythonic, database-agnostic way to interact with SQLite and manage queries safely |
+| FastAPI          | REST API         | Modern Python framework with high performance and auto-generated OpenAPI documentation       |
+| Pydantic         | Data validation  | Ensures type-safe API responses and enforces data consistency using Python type hints        |
+| Uvicorn          | ASGI server      | Lightweight, high-performance server used to run FastAPI applications                        |
+| Jupyter Notebook | Data exploration | Interactive environment for testing and validating data cleaning logic                       |
 
 ---
 
 ## Project Structure
+
 
 ```
 BigDataProject/
@@ -72,7 +76,7 @@ BigDataProject/
 ├── faculty_finder/              # Scrapy project folder
 │   ├── spiders/
 │   │   └── faculty_spider.py    # Main web scraper
-│   ├── scrapy.cfg               # Scrapy configuration
+│   ├── items.py                 # Items to be crawlled
 │   └── faculty_output.json      # Raw scraped data (111 faculty members)
 │
 ├── app/                         # FastAPI application
@@ -1221,19 +1225,25 @@ def get_by_name(faculty_name: str, db: Session = Depends(get_db)):
 
 ```python
 @app.get("/faculty/type/{faculty_type}", response_model=List[FacultyOut])
-def get_by_type(faculty_type: str, db: Session = Depends(get_db)):
+def get_by_type(
+    faculty_type: FacultyType,
+    db: Session = Depends(get_db)
+):
     result = db.execute(
         text("SELECT * FROM faculty WHERE faculty_type = :t"),
-        {"t": faculty_type}
+        {"t": faculty_type.value}
     )
     rows = result.mappings().all()
     return [parse_row(row) for row in rows]
 ```
 
 **Explanation**:
-- Exact match (not LIKE)
-- Example URL: `/faculty/type/adjunct`
-- Returns all faculty of that type
+- Uses an Enum (FacultyType) to restrict input to a predefined set of valid faculty types
+- Exact match on faculty_type (no LIKE used)
+- Prevents invalid values at the API level and provides a dropdown in Swagger UI
+- Example URL: /faculty/type/adjunct-faculty
+- Returns all faculty records belonging to the selected faculty type
+
 
 #### API Route 5: Root Redirect
 
@@ -2516,22 +2526,22 @@ def get_faculty(faculty_id: int):
 ## Database Schema
 
 ### Faculty Table
+| Column            | Type        | Description                             | Example                          |
+| ----------------- | ----------- | --------------------------------------- | -------------------------------- |
+| `id`              | INTEGER     | Auto-incremented primary key            | `1`, `2`, `3`                    |
+| `faculty_type`    | TEXT        | Category of faculty                     | `"faculty"`, `"adjunct-faculty"` |
+| `name`            | TEXT        | Full name in title case                 | `"Yash Vasavada"`                |
+| `email`           | TEXT (JSON) | List of email addresses                 | `["yash@dau.ac.in"]`             |
+| `phone`           | TEXT (JSON) | Categorized mobile and landline numbers | `{"mobile": ["9876543210"]}`     |
+| `education`       | TEXT        | Academic degrees and institutions       | `"PhD (EE), Virginia Tech"`      |
+| `address`         | TEXT        | Office location                         | `"#1224, FB-1, DA-IICT"`       |
+| `specializations` | TEXT        | Research focus areas                    | `"Machine Learning, NLP"`        |
+| `biography`       | TEXT        | Professional background summary         | `"Dr. X is a professor..."`      |
+| `teaching`        | TEXT (JSON) | Courses taught                          | `["Data Structures", "AI"]`      |
+| `research`        | TEXT        | Research interests                      | `"Computer Vision, Robotics"`    |
+| `publications`    | TEXT (JSON) | List of research publications           | `["Paper 1...", "Paper 2..."]`   |
+| `website_links`   | TEXT (JSON) | Categorized external links              | `{"google_scholar": ["url"]}`    |
 
-| Column | Type | Description | Example |
-|--------|------|-------------|---------|
-| id | INTEGER | Auto-incremented primary key | 1, 2, 3... |
-| faculty_type | TEXT | Category of faculty | "faculty", "adjunct" |
-| name | TEXT | Full name in title case | "Yash Vasavada" |
-| email | TEXT (JSON) | List of email addresses | `["yash@dau.ac.in"]` |
-| phone | TEXT (JSON) | Object with mobile/landline | `{"mobile": ["9876543210"]}` |
-| education | TEXT | Degrees and institutions | "PhD (EE), Virginia Tech" |
-| address | TEXT | Office location | "# 1224, FB-1, DA-IICT" |
-| specializations | TEXT | Research areas | "Machine Learning, NLP" |
-| biography | TEXT | Professional background | "Dr. X is a professor..." |
-| teaching | TEXT (JSON) | Courses taught | `["Data Structures", "AI"]` |
-| research | TEXT | Research interests | "Computer Vision, Robotics" |
-| publications | TEXT (JSON) | List of papers | `["Paper 1...", "Paper 2..."]` |
-| website_links | TEXT (JSON) | Categorized links | `{"google_scholar": ["url"]}` |
 
 **Total Records**: 111 faculty members
 
