@@ -2846,12 +2846,12 @@ This project was collaboratively developed as part of an academic data engineeri
 **Manya Choradiya**
 
 * College ID: `202518021`
-* GitHub: [https://github.com/](https://github.com/)<Manya123-web>
-* LinkedIn: [https://www.linkedin.com/in/](https://www.linkedin.com/in/)<manya-choradiya-383651361>
+* GitHub: [https://github.com/Manya123-web](https://github.com/)<Manya123-web>
+* LinkedIn: [https://www.linkedin.com/in/manya-choradiya-383651361](https://www.linkedin.com/in/)<manya-choradiya-383651361>
 
 **Ambuj Tripathi**
 
 * College ID: `202518021`
-* GitHub: [https://github.com/](https://github.com/)<Shaneat8>
-* LinkedIn: [https://www.linkedin.com/in/](https://www.linkedin.com/in/)<ambujtripathi41>
+* GitHub: [https://github.com/Shaneat8](https://github.com/)<Shaneat8>
+* LinkedIn: [https://www.linkedin.com/in/ambujtripathi41](https://www.linkedin.com/in/)<ambujtripathi41>
 
