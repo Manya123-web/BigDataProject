@@ -2824,18 +2824,6 @@ This project was developed as a learning exercise. Contributions for improvement
 
 ---
 
-**Project Type**: Data Engineering Pipeline  
-**Difficulty**: Beginner to Intermediate  
-**Estimated Time**: 8-10 hours  
-**Skills Gained**: Web scraping, data cleaning, SQL, REST APIs
-
-
----
-
-Here you go — **clean, minimal, and GitHub-ready**.
-You can copy-paste this directly into your `README.md`.
-
----
 
 ## Project Authors
 

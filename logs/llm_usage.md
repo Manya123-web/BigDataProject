@@ -433,36 +433,6 @@ I took the structural guidance and created:
 
 ---
 
-## Summary of LLM Usage vs Independent Work
-
-### Areas Where ChatGPT Helped (Learning)
-
-| Task | ChatGPT's Role | What I Learned |
-|------|----------------|----------------|
-| CSS Selectors | Explained syntax and hierarchy | How to target nested HTML elements |
-| Data Cleaning | Suggested string manipulation patterns | unicodedata, regex patterns |
-| FastAPI Syntax | Provided basic structure and decorators | Dependency injection, Pydantic models |
-| Documentation | Recommended README structure | How to write beginner-friendly docs |
-
-### Areas Completed Independently (Application)
-
-| Task | Implementation | Complexity |
-|------|---------------|------------|
-| Database Schema Design | Created entire SQLite structure | Medium |
-| Phone Categorization Logic | Built mobile/landline detection | Medium |
-| Publication Merging Algorithm | Developed fragment joining logic | High |
-| Website Link Categorization | Classified links by type | Low |
-| All API Route Logic | Implemented 4 endpoints + error handling | Medium |
-| JSON Parsing in API | Created parse_row() function | Medium |
-| Complete Data Validation | Ensured data quality across pipeline | High |
-
-### Percentage Breakdown
-
-- **LLM-Assisted Learning**: ~30% (syntax, patterns, best practices)
-- **Independent Implementation**: ~70% (logic, architecture, testing)
-
----
-
 ## Key Takeaways
 
 ### What ChatGPT Was Good For
@@ -479,37 +449,3 @@ I took the structural guidance and created:
 3. **Edge Cases**: Handling missing data, malformed inputs
 4. **Integration**: Connecting all pipeline stages together
 5. **Testing**: Verifying data quality, API functionality
-
-### Lessons Learned About Using LLMs
-
-**Effective Prompting**:
-- Provide specific context (code snippets, error messages)
-- Ask for explanations, not just solutions
-- Request examples to understand patterns
-
-**Where LLMs Excel**:
-- Syntax and boilerplate code
-- Explaining concepts with examples
-- Suggesting alternative approaches
-
-**Where Human Judgment Is Crucial**:
-- Understanding project requirements
-- Making architectural decisions
-- Validating data quality
-- Optimizing for specific use cases
-
----
-
-## Ethical Use Statement
-
-All LLM assistance was used for:
-- Learning new technologies (FastAPI, advanced Scrapy features)
-- Understanding syntax and best practices
-- Getting unstuck on specific problems
-
-All core logic, architecture, and implementation decisions were made independently. This project represents genuine learning and skill development, with ChatGPT serving as a tutoring tool rather than a solution generator.
-
----
-
-**Time Saved**: Reduced initial learning curve for unfamiliar tools such as FastAPI and advanced Scrapy selectors
-**Skills Gained**: FastAPI, advanced Pandas, Pydantic, REST API design
