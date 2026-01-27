@@ -2815,16 +2815,6 @@ This project was developed as a learning exercise. Contributions for improvement
 - Scrapy and FastAPI documentation teams
 
 ---
-
-**Project Type**: Data Engineering Pipeline  
-**Difficulty**: Beginner to Intermediate  
-**Estimated Time**: 8-10 hours  
-**Skills Gained**: Web scraping, data cleaning, SQL, REST APIs
-
-
----
-
-
 ## Project Authors
 
 This project was collaboratively developed as part of an academic data engineering assignment.
