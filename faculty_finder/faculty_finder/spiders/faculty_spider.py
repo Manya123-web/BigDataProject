@@ -34,7 +34,7 @@ class FacultySpider(scrapy.Spider):
             item["email"] = faculty.css("span.facultyemail::text").get(default="").strip()
             item["specializations"] = faculty.css("div.areaSpecialization p::text").get(default="").strip()
 
-            # Get profile link - use simpler selector that works for all faculty
+            # Get profile link 
             profile_url = faculty.css("h3 a::attr(href)").get()
 
             if profile_url:
@@ -45,45 +45,39 @@ class FacultySpider(scrapy.Spider):
                     meta={"item": item},  # Pass the item along
                 )
             else:
-                # No profile link? Just yield what we have
                 yield item
 
     def parse_profile(self, response):
-        """
-        Profile page parser - gets detailed info like biography, publications, etc
-        """
-        # Get the item we passed from parse()
         item = response.meta["item"]
 
-        # === BIOGRAPHY ===
+        # Biography
         # Try multiple selectors because website structure varies
         bio_parts = response.css("div.field--name-field-biography *::text").getall()
         if bio_parts:
             item["biography"] = " ".join([t.strip() for t in bio_parts if t.strip()])
         else:
-            # Fallback: try simpler selector
+            # Fallback: trying simpler selector
             bio_text = response.css("div.field--name-field-biography::text").get(default="").strip()
             item["biography"] = bio_text if bio_text else ""
 
-        # === TEACHING ===
+        # teaching
         teaching_list = response.css("div.field--name-field-teaching *::text").getall()
         if teaching_list:
             item["teaching"] = [t.strip() for t in teaching_list if t.strip()]
         else:
             item["teaching"] = []
 
-        # === RESEARCH/SPECIALIZATION ===
+        # research/specializations
         # Check the work-exp div for research areas
         research_parts = response.css("div.work-exp *::text").getall()
         if research_parts:
             research_text = " ".join([t.strip() for t in research_parts if t.strip()])
-            item["specializations"] = research_text  # Update with profile page data
+            item["specializations"] = research_text 
             item["research"] = research_text
         else:
-            # Keep listing page value if no research found on profile
             item["research"] = item.get("specializations", "")
 
-        # === PUBLICATIONS ===
+        # publications
         # Try multiple selectors
         pubs = []
         
@@ -96,7 +90,7 @@ class FacultySpider(scrapy.Spider):
         
         item["publications"] = pubs
 
-        # === WEBSITE LINKS ===
+        # website_links
         # Look for external links in biography or dedicated field
         links = response.css("div.field--name-field-biography a[href*='http']::attr(href)").getall()
         if not links:
@@ -105,6 +99,6 @@ class FacultySpider(scrapy.Spider):
         item["website_links"] = links
 
         # Log what we extracted (helpful for debugging)
-        self.logger.info(f"✓ Extracted profile for: {item.get('name', 'Unknown')}")
+        self.logger.info(f"Extracted profile for: {item.get('name', 'Unknown')}")
         
         yield item
