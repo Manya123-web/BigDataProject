@@ -11,7 +11,6 @@ from app.schemas import FacultyOut
 
 app = FastAPI(title="Faculty API")
 
-
 JSON_FIELDS = {
     "phone",
     "email",
@@ -23,7 +22,6 @@ JSON_FIELDS = {
 
 def parse_row(row: dict) -> dict:
     data = dict(row)
-
     for field in JSON_FIELDS:
         value = data.get(field)
         if value is None:
@@ -33,7 +31,6 @@ def parse_row(row: dict) -> dict:
                 data[field] = json.loads(value)
             except Exception:
                 data[field] = None
-
     return data
 
 
@@ -47,25 +44,24 @@ def get_all_faculty(db: Session = Depends(get_db)):
 @app.get("/faculty/{faculty_id}", response_model=FacultyOut)
 def get_faculty(faculty_id: int, db: Session = Depends(get_db)):
     result = db.execute(
-        text("SELECT * FROM faculty WHERE id = :id"),
-        {"id": faculty_id}
+        text("SELECT * FROM faculty WHERE id = :id"), {"id": faculty_id}
     )
     row = result.mappings().first()
-
     if not row:
         raise HTTPException(status_code=404, detail="Faculty not found")
-
     return parse_row(row)
 
 
 @app.get("/faculty/name/{faculty_name}", response_model=List[FacultyOut])
 def get_by_name(faculty_name: str, db: Session = Depends(get_db)):
     result = db.execute(
-        text("""
-            SELECT * FROM faculty
-            WHERE LOWER(name) LIKE LOWER(:name)
-        """),
-        {"name": f"%{faculty_name}%"}
+        text(
+            """
+        SELECT * FROM faculty 
+        WHERE LOWER(name) LIKE LOWER(:name)
+        """
+        ),
+        {"name": f"%{faculty_name}%"},
     )
     rows = result.mappings().all()
     return [parse_row(row) for row in rows]
@@ -80,13 +76,30 @@ class FacultyType(str, Enum):
 
 
 @app.get("/faculty/type/{faculty_type}", response_model=List[FacultyOut])
-def get_by_type(
-    faculty_type: FacultyType,
-    db: Session = Depends(get_db)
-):
+def get_by_type(faculty_type: FacultyType, db: Session = Depends(get_db)):
     result = db.execute(
-        text("SELECT * FROM faculty WHERE faculty_type = :t"),
-        {"t": faculty_type.value}
+        text("SELECT * FROM faculty WHERE faculty_type = :t"), {"t": faculty_type.value}
+    )
+    rows = result.mappings().all()
+    return [parse_row(row) for row in rows]
+
+
+@app.get("/faculty/search/keyword/{keyword}", response_model=List[FacultyOut])
+def search_by_keyword(keyword: str, db: Session = Depends(get_db)):
+    """
+    Search for faculty by keyword in research, teaching, and specializations fields.
+    Returns all faculty members where the keyword appears in any of these fields.
+    """
+    result = db.execute(
+        text(
+            """
+        SELECT * FROM faculty 
+        WHERE LOWER(research) LIKE LOWER(:keyword)
+           OR LOWER(teaching) LIKE LOWER(:keyword)
+           OR LOWER(specializations) LIKE LOWER(:keyword)
+        """
+        ),
+        {"keyword": f"%{keyword}%"},
     )
     rows = result.mappings().all()
     return [parse_row(row) for row in rows]
