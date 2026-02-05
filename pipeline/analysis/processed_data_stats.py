@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("pipeline/data/processed/faculty_cleaned.csv")
+df = pd.read_csv("data/processed/faculty_cleaned.csv")
 n = len(df)
 
 print("\n=== PROCESSED DATA OVERVIEW ===")

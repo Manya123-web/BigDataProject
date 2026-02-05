@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from collections import defaultdict
 
 
-df = pd.read_csv("pipeline/data/processed/faculty_cleaned.csv")
+df = pd.read_csv("data/processed/faculty_cleaned.csv")
 
 # %%
 JSON_COLUMNS = [
@@ -36,7 +36,7 @@ column_types
 
 
 # %%
-DB_PATH = "pipeline/outputs/faculty.db"
+DB_PATH = "outputs/faculty.db"
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 try :
@@ -65,8 +65,8 @@ except Exception as e:
     print(f"Error creating database table: {e}")
 
 # %%
-# df = df.reset_index(drop=True)
-# df.insert(0, "id", range(1, len(df) + 1))
+df = df.reset_index(drop=True)
+df.insert(0, "id", range(1, len(df) + 1))
 
 df['faculty_type'].unique()
 

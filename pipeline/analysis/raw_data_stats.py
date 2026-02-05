@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_json("pipeline/data/raw/faculty_output.json")
+df = pd.read_json("data/raw/faculty_output.json")
 n = len(df)
 
 print("\n=== RAW DATA OVERVIEW ===")

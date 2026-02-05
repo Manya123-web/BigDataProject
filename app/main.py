@@ -2,6 +2,10 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from pipeline.recommender.loader import load_all
+from pipeline.recommender.search import search_faculty
+
+
 from typing import List
 from enum import Enum
 import json
@@ -10,6 +14,10 @@ from app.db import get_db
 from app.schemas import FacultyOut
 
 app = FastAPI(title="Faculty API")
+@app.on_event("startup")
+def startup_event():
+    load_all()
+
 
 JSON_FIELDS = {
     "phone",
@@ -108,3 +116,19 @@ def search_by_keyword(keyword: str, db: Session = Depends(get_db)):
 @app.get("/", include_in_schema=False)
 def root():
     return RedirectResponse(url="/docs")
+
+@app.get("/recommend")
+def recommend(query: str, k: int = 5):
+
+    if not query.strip():
+        raise HTTPException(status_code=400, detail="Query cannot be empty")
+
+    results = search_faculty(query, k)
+
+    return {
+        "query": query,
+        "count": len(results),
+        "recommendations": results
+    }
+
+    
