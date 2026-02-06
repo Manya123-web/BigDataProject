@@ -5,7 +5,18 @@ from pipeline.recommender.search import search_faculty
 from sqlalchemy import text
 from app.db import SessionLocal
 
-st.set_page_config(page_title="Faculty Recommender AI",layout="wide")
+st.set_page_config(page_title="Faculty Recommender AI",layout="wide",initial_sidebar_state="collapsed")
+
+st.markdown("""
+<style>
+.main .block-container {
+    max-width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 # Initialize database session
 db = SessionLocal()
