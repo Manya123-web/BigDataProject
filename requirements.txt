@@ -1,0 +1,7 @@
+streamlit
+SQLAlchemy
+faiss-cpu
+sentence-transformers
+pandas
+pydantic
+torch

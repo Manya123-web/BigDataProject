@@ -221,71 +221,51 @@
 
         .faculty-card {
             background: var(--white);
-            border-radius: 24px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3);
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             cursor: pointer;
-            height: 420px;
-            display: flex;
-            flex-direction: column;
         }
 
         .faculty-card::before {
-            display: none;
-        }
-
-        .faculty-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.4);
-            z-index: 10;
-        }
-
-        /* Gradient backgrounds for fallback/masking */
-        .card-gradient-1 { background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%); }
-        .card-gradient-2 { background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); }
-        .card-gradient-3 { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
-        .card-gradient-4 { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
-        .card-gradient-5 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-
-        .card-image-container {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform 0.4s;
+        }
+
+        .faculty-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        }
+
+        .faculty-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-image-container {
+            position: relative;
+            height: 210px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea, #764ba2);
         }
 
         .card-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            object-position: top center;
-            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            object-fit:cover;
+            transition: transform 0.4s;
         }
 
         .faculty-card:hover .card-image {
-            transform: scale(1.1);
-        }
-        
-        .card-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60%;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 2rem;
-        }
-        
-        .top-match {
-            border: 3px solid #f59e0b;
+            transform: scale(1.08);
         }
 
         .placeholder-bg {
@@ -315,28 +295,27 @@
         }
 
         .card-content {
-            position: relative;
-            z-index: 5;
-            padding: 0;
+            padding: 2rem;
         }
 
         .faculty-name {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--white);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            line-height: 1.2;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
         }
 
         .faculty-role {
             display: inline-block;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.95rem;
-            font-weight: 500;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.1));
+            color: var(--primary);
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 0;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            margin-bottom: 1.5rem;
         }
 
         .recommendation-badge {
@@ -451,11 +430,23 @@
             line-height: 1.6;
         }
 
-        /* Hidden elements in card view, shown in modal */
-        .faculty-card .stats-grid,
-        .faculty-card .topics-section,
-        .faculty-card .view-details-btn {
-            display: none;
+        .view-details-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .view-details-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
         }
 
         /* Modal */
@@ -844,8 +835,43 @@
 
         // Load all faculty on page load
         window.addEventListener('DOMContentLoaded', async () => {
-            await loadAllFaculty();
+            // Priority 1: Check for injected results (from Python)
+            if (window.INJECTED_RESULTS) {
+                console.log("Using injected results:", window.INJECTED_RESULTS);
+                handleInjectedResults(window.INJECTED_RESULTS);
+            } else {
+                // Priority 2: Fallback to fetch (for development/legacy)
+                await loadAllFaculty();
+            }
         });
+
+        function handleInjectedResults(data) {
+            loading.classList.add('hidden');
+            if (data && data.length > 0) {
+                allFacultyData = data;
+                renderResults(data);
+                resultCount.innerText = data.length;
+                statsBar.classList.remove('hidden');
+                
+                const query = window.CURRENT_QUERY || "";
+                if (query) {
+                    document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${data.length}</span> faculty matches for "${query}"`;
+                    // Show recommendation banner if first result is a high match
+                    const topMatch = data[0];
+                    if (topMatch.similarity_score >= 0.8) {
+                        const recBanner = document.getElementById('recommendationBanner');
+                        const recText = document.getElementById('recommendationText');
+                        const topicStr = topMatch.topics ? `highlighted by their work in ${topMatch.topics.split(',').slice(0,2).join(', ')}` : 'their relevant research';
+                        recText.innerHTML = `For a query on <strong>"${query}"</strong>, we recommend approaching <strong>${topMatch.name}</strong>, ${topicStr}. They have <strong>${topMatch.works_count || 0}</strong> publications.`;
+                        recBanner.classList.remove('hidden');
+                    }
+                } else {
+                    document.querySelector('.stats-text').innerHTML = `Showing <span class="stats-count">${data.length}</span> faculty members`;
+                }
+            } else {
+                noResults.classList.remove('hidden');
+            }
+        }
 
         async function loadAllFaculty() {
             loading.classList.remove('hidden');
@@ -883,31 +909,33 @@
             }
         }
 
+        function syncWithStreamlit(query) {
+            // Signal Streamlit to update its query params
+            // This reloads the page with the new results injected by Python
+            const url = new URL(window.location.origin);
+            const parentUrl = new URL(window.parent.location.href);
+            parentUrl.searchParams.set('q', query);
+            window.parent.location.href = parentUrl.href;
+        }
+
         searchInput.addEventListener('input', (e) => {
             clearTimeout(timeout);
             const query = e.target.value.trim();
             
-            if (query.length > 2) {
-                timeout = setTimeout(() => performSearch(query), 500);
-            } else if (query.length === 0) {
-                // Reset to show all faculty when search is cleared
-                loadAllFaculty();
+            if (query.length > 3) { // Increased threshold for auto-sync
+                timeout = setTimeout(() => syncWithStreamlit(query), 1000);
             }
         });
 
         searchBtn.addEventListener('click', () => {
             const query = searchInput.value.trim();
-            if (query.length > 0) {
-                performSearch(query);
-            }
+            syncWithStreamlit(query);
         });
 
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const query = searchInput.value.trim();
-                if (query.length > 0) {
-                    performSearch(query);
-                }
+                syncWithStreamlit(query);
             }
         });
 
@@ -959,35 +987,45 @@
             resultsGrid.innerHTML = facultyList.map((faculty, index) => {
                 let imageHtml = '';
                 if (faculty.image_url) {
-                    imageHtml = `<img src="${faculty.image_url}" alt="${faculty.name}" class="card-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x600?text=No+Image';">`;
+                    imageHtml = `<img src="${faculty.image_url}" alt="${faculty.name}" class="card-image">`;
                 } else {
                     const initials = faculty.name ? faculty.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : '??';
                     imageHtml = `<div class="placeholder-bg">${initials}</div>`;
                 }
                 const works = (faculty.works_count || 0).toLocaleString();
-                const topicList = faculty.topics ? faculty.topics.split(',').slice(0, 3).join(', ') + (faculty.topics.split(',').length > 3 ? '...' : '') : "General Research";
+                const topics = faculty.topics || "General Research";
                 const similarity = Math.round(faculty.similarity_score * 100);
                 
-                // Deterministic gradient based on name length or index to keep it consistent
-                const gradientIndex = (faculty.name.length + index) % 5 + 1;
-                const gradientClass = `card-gradient-${gradientIndex}`;
-
                 // Recommendation logic: highlight the first result if it has a high score
                 const isTopMatch = index === 0 && similarity >= 80;
-                const recommendationBadge = isTopMatch ? '<div class="recommendation-badge">⭐ Top Match</div>' : '';
+                const recommendationBadge = isTopMatch ? '<div class="recommendation-badge">⭐ Top Recommendation</div>' : '';
                 
                 return `
-                    <div class="faculty-card ${gradientClass} fade-in ${isTopMatch ? 'top-match' : ''}" style="animation-delay: ${index * 0.1}s" onclick="showFacultyDetails(${faculty.id})">
+                    <div class="faculty-card fade-in ${isTopMatch ? 'top-match' : ''}" style="animation-delay: ${index * 0.1}s">
                         <div class="card-image-container">
                             ${imageHtml}
-                        </div>
-                        <div class="card-overlay">
-                            <div class="match-badge" style="position: relative; top: auto; right: auto; align-self: flex-start; margin-bottom: auto; background: rgba(255,255,255,0.2); color:white; backdrop-filter: blur(5px); font-size: 0.8rem; padding: 0.4rem 0.8rem;">${similarity}% Match</div>
+                            <div class="match-badge">${similarity}% Match</div>
                             ${recommendationBadge}
-                            <div class="card-content">
-                                <h2 class="faculty-name">${faculty.name}</h2>
-                                <span class="faculty-role">${faculty.faculty_type || 'Faculty Member'}</span>
+                        </div>
+                        <div class="card-content">
+                            <h2 class="faculty-name">${faculty.name}</h2>
+                            <span class="faculty-role">${faculty.faculty_type || 'Faculty'}</span>
+                            
+                            <div class="stats-grid">
+                                <div class="stat-box">
+                                    <div class="stat-label">Works</div>
+                                    <div class="stat-value">${works}</div>
+                                </div>
                             </div>
+
+                            <div class="topics-section">
+                                <div class="topics-label">Research Areas</div>
+                                <div class="topics-text">${topics}</div>
+                            </div>
+
+                            <button class="view-details-btn" onclick="showFacultyDetails(${faculty.id})">
+                                View Full Profile
+                            </button>
                         </div>
                     </div>
                 `;
