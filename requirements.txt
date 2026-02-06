@@ -2,9 +2,6 @@ streamlit
 SQLAlchemy
 faiss-cpu
 sentence-transformers
-fastapi
-uvicorn
+pandas
 pydantic
 torch
-pandas
-sqlite3
