@@ -7,16 +7,19 @@ from app.db import SessionLocal
 
 st.set_page_config(page_title="Faculty Recommender AI",layout="wide",initial_sidebar_state="collapsed")
 
+# Custom CSS for Full Screen
 st.markdown("""
-<style>
-.main .block-container {
-    max-width: 100%;
-    padding-left: 2rem;
-    padding-right: 2rem;
-}
-</style>
+    <style>
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+        .stMainContainer {padding: 0 !important;}
+        .stApp {background: transparent;}
+        [data-testid="stHeader"] {display: none;}
+        .block-container {padding: 0 !important; max-width: 100% !important;}
+        iframe {border: none !important;}
+    </style>
 """, unsafe_allow_html=True)
-
 
 # Initialize database session
 db = SessionLocal()
@@ -33,14 +36,8 @@ def parse_faculty_json(f):
                 pass
     return f
 
-# Native Streamlit search fallback
-st.title("Academic Search")
-query_input = st.text_input("Search Faculty", value=st.query_params.get("q", ""), key="st_query")
-
-# Update query param and trigger reload if changed via native search
-if query_input != st.query_params.get("q", ""):
-    st.query_params["q"] = query_input
-    st.rerun()
+# Handle search query
+query = st.query_params.get("q", "")
 
 # Handle search query
 query = st.query_params.get("q", "")
@@ -79,6 +76,6 @@ html_content = html_template.replace("</body>", f"{data_injection}</body>")
 # Use a dynamic height or stick to a large enough value
 st.components.v1.html(
     html_content,
-    height=1200,
+    height=2000,
     scrolling=True
 )

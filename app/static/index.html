@@ -162,7 +162,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
@@ -893,12 +893,27 @@
         }
 
         searchInput.addEventListener('input', (e) => {
-            clearTimeout(timeout);
-            const query = e.target.value.trim();
+            const query = e.target.value.toLowerCase().trim();
+            console.log("Filtering results for:", query);
             
-            if (query.length > 3) { // Increased threshold for auto-sync
-                timeout = setTimeout(() => syncWithStreamlit(query), 1000);
+            if (query === "") {
+                renderResults(allFacultyData);
+                resultCount.innerText = allFacultyData.length;
+                return;
             }
+
+            const filtered = allFacultyData.filter(f => 
+                (f.name && f.name.toLowerCase().includes(query)) || 
+                (f.topics && f.topics.toLowerCase().includes(query)) || 
+                (f.research && f.research.toLowerCase().includes(query)) ||
+                (f.specializations && f.specializations.toLowerCase().includes(query))
+            );
+
+            renderResults(filtered);
+            resultCount.innerText = filtered.length;
+            
+            // Hide recommendation banner during simple filter
+            document.getElementById('recommendationBanner').classList.add('hidden');
         });
 
         searchBtn.addEventListener('click', () => {
@@ -913,49 +928,7 @@
             }
         });
 
-        async function performSearch(query) {
-            loading.classList.remove('hidden');
-            resultsGrid.innerHTML = '';
-            noResults.classList.add('hidden');
-            statsBar.classList.add('hidden');
-
-            try {
-                const response = await fetch(`/recommend?query=${encodeURIComponent(query)}&k=20`);
-                const data = await response.json();
-
-                loading.classList.add('hidden');
-
-                if (data.recommendations && data.recommendations.length > 0) {
-                    allFacultyData = data.recommendations;
-                    renderResults(data.recommendations);
-                    resultCount.innerText = data.recommendations.length;
-                    statsBar.classList.remove('hidden');
-                    
-                    // Show recommendation banner if first result is a high match
-                    const topMatch = data.recommendations[0];
-                    if (topMatch.similarity_score >= 0.8) {
-                        const recBanner = document.getElementById('recommendationBanner');
-                        const recText = document.getElementById('recommendationText');
-                        const topicStr = topMatch.topics ? `highlighted by their work in ${topMatch.topics.split(',').slice(0,2).join(', ')}` : 'their relevant research';
-                        recText.innerHTML = `For a query on <strong>"${query}"</strong>, we recommend approaching <strong>${topMatch.name}</strong>, ${topicStr}. They have <strong>${topMatch.works_count || 0}</strong> publications.`;
-                        recBanner.classList.remove('hidden');
-                    } else {
-                        document.getElementById('recommendationBanner').classList.add('hidden');
-                    }
-                    
-                    // Update stats text for search results
-                    document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${data.recommendations.length}</span> faculty matches`;
-                } else {
-                    noResults.classList.remove('hidden');
-                    document.getElementById('recommendationBanner').classList.add('hidden');
-                }
-
-            } catch (error) {
-                console.error('Error:', error);
-                loading.classList.add('hidden');
-                noResults.classList.remove('hidden');
-            }
-        }
+        // Local search is now handled by the input event listener
 
         function renderResults(facultyList) {
             resultsGrid.innerHTML = facultyList.map((faculty, index) => {
@@ -997,7 +970,7 @@
                                 <div class="topics-text">${topics}</div>
                             </div>
 
-                            <button class="view-details-btn" onclick="showFacultyDetails(${faculty.id})">
+                            <button class="view-details-btn" onclick="showFacultyDetails('${faculty.id}')">
                                 View Full Profile
                             </button>
                         </div>
@@ -1007,17 +980,24 @@
         }
 
         async function showFacultyDetails(facultyId) {
+            console.log("Showing details for faculty ID:", facultyId);
             try {
                 // Find faculty in already loaded data instead of fetching
-                const faculty = allFacultyData.find(f => f.id === facultyId);
+                // Use looser comparison (==) to handle string vs number IDs
+                const faculty = allFacultyData.find(f => f.id == facultyId);
+                
                 if (!faculty) {
+                    console.error("Faculty not found in current dataset. ID searched:", facultyId);
+                    console.log("Current dataset IDs:", allFacultyData.map(f => f.id));
                     throw new Error("Faculty data not found locally");
                 }
+                
+                console.log("Found faculty data:", faculty.name);
 
                 document.getElementById('modalName').textContent = faculty.name || 'Unknown';
                 document.getElementById('modalRole').textContent = faculty.faculty_type || 'Faculty Member';
 
-                const similarity = allFacultyData.find(f => f.id === facultyId)?.similarity_score || 0;
+                const similarity = faculty.similarity_score || 0;
 
                 let imageHtml = '';
                 if (faculty.image_url) {
