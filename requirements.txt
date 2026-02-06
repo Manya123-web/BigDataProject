@@ -1,0 +1,10 @@
+streamlit
+SQLAlchemy
+faiss-cpu
+sentence-transformers
+fastapi
+uvicorn
+pydantic
+torch
+pandas
+sqlite3
