@@ -1045,15 +1045,18 @@
 
         function showFacultyDetails(facultyId) {
             console.log("=== Opening Modal ===");
-            console.log("Faculty ID:", facultyId);
-            console.log("Current displayed results:", currentDisplayedResults.length);
+            console.log("Searching for Faculty ID:", facultyId);
             
-            // Find faculty in current displayed results
-            const faculty = currentDisplayedResults.find(f => String(f.id) === String(facultyId));
+            // 1. Robust lookup: Search in both current and all data, and use loose comparison
+            let faculty = currentDisplayedResults.find(f => String(f.id) == String(facultyId));
+            if (!faculty) {
+                faculty = allFacultyData.find(f => String(f.id) == String(facultyId));
+            }
             
             if (!faculty) {
                 console.error("Faculty not found. ID searched:", facultyId);
-                console.log("Available IDs:", currentDisplayedResults.map(f => f.id));
+                console.log("Available Current IDs:", currentDisplayedResults.map(f => f.id));
+                console.log("Total records in allFacultyData:", allFacultyData.length);
                 alert('Could not load faculty details. Please try again.');
                 return;
             }
@@ -1087,107 +1090,109 @@
                 </div>
             `;
 
-            if (faculty.topics) {
-                modalContent += `
-                    <div class="detail-section">
-                        <div class="detail-title">Research Topics</div>
-                        <div class="detail-content">${faculty.topics}</div>
-                    </div>
-                `;
+            const sections = [
+                { title: 'Research Topics', key: 'topics' },
+                { title: 'Education', key: 'education' },
+                { title: 'Specializations', key: 'specializations' },
+                { title: 'Research Interests', key: 'research' },
+                { title: 'Biography', key: 'biography' },
+                { title: 'Office Address', key: 'address', prefix: '📍 ' }
+            ];
+
+            sections.forEach(section => {
+                if (faculty[section.key]) {
+                    modalContent += `
+                        <div class="detail-section">
+                            <div class="detail-title">${section.title}</div>
+                            <div class="detail-content">${section.prefix || ''}${faculty[section.key]}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (faculty.teaching) {
+                const teaching = Array.isArray(faculty.teaching) ? faculty.teaching : [faculty.teaching];
+                if (teaching.length > 0 && teaching[0]) {
+                    modalContent += `
+                        <div class="detail-section">
+                            <div class="detail-title">Teaching</div>
+                            <ul class="detail-list">
+                                ${teaching.map(course => `<li>${course}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
             }
 
-            if (faculty.education) {
-                modalContent += `
-                    <div class="detail-section">
-                        <div class="detail-title">Education</div>
-                        <div class="detail-content">${faculty.education}</div>
-                    </div>
-                `;
+            // Contact Info with Defensive Mapping
+            let contactHtml = '';
+            if (faculty.email) {
+                const emails = Array.isArray(faculty.email) ? faculty.email : [faculty.email];
+                if (emails.length > 0 && emails[0]) {
+                    contactHtml += `<div style="margin-bottom: 0.5rem;">📧 Email: ${emails.join(', ')}</div>`;
+                }
+            }
+            if (faculty.phone) {
+                if (typeof faculty.phone === 'object' && !Array.isArray(faculty.phone)) {
+                    contactHtml += Object.entries(faculty.phone).map(([key, val]) => {
+                        const valStr = Array.isArray(val) ? val.join(', ') : val;
+                        return `<div style="margin-bottom: 0.5rem;">📞 ${key}: ${valStr}</div>`;
+                    }).join('');
+                } else {
+                    const phones = Array.isArray(faculty.phone) ? faculty.phone : [faculty.phone];
+                    if (phones.length > 0 && phones[0]) {
+                        contactHtml += `<div style="margin-bottom: 0.5rem;">📞 Phone: ${phones.join(', ')}</div>`;
+                    }
+                }
             }
 
-            if (faculty.specializations) {
-                modalContent += `
-                    <div class="detail-section">
-                        <div class="detail-title">Specializations</div>
-                        <div class="detail-content">${faculty.specializations}</div>
-                    </div>
-                `;
-            }
-
-            if (faculty.research) {
-                modalContent += `
-                    <div class="detail-section">
-                        <div class="detail-title">Research Interests</div>
-                        <div class="detail-content">${faculty.research}</div>
-                    </div>
-                `;
-            }
-
-            if (faculty.biography) {
-                modalContent += `
-                    <div class="detail-section">
-                        <div class="detail-title">Biography</div>
-                        <div class="detail-content">${faculty.biography}</div>
-                    </div>
-                `;
-            }
-
-            if (faculty.address) {
-                modalContent += `
-                    <div class="detail-section">
-                        <div class="detail-title">Office Address</div>
-                        <div class="detail-content">📍 ${faculty.address}</div>
-                    </div>
-                `;
-            }
-
-            if (faculty.teaching && Array.isArray(faculty.teaching) && faculty.teaching.length > 0) {
-                modalContent += `
-                    <div class="detail-section">
-                        <div class="detail-title">Teaching</div>
-                        <ul class="detail-list">
-                            ${faculty.teaching.map(course => `<li>${course}</li>`).join('')}
-                        </ul>
-                    </div>
-                `;
-            }
-
-            if ((faculty.email && faculty.email.length > 0) || (faculty.phone && Object.keys(faculty.phone).length > 0)) {
+            if (contactHtml) {
                 modalContent += `
                     <div class="detail-section">
                         <div class="detail-title">Contact Information</div>
-                        <div class="detail-content">
-                            ${faculty.email && faculty.email.length > 0 ? `<div style="margin-bottom: 0.5rem;">📧 Email: ${faculty.email.join(', ')}</div>` : ''}
-                            ${faculty.phone ? Object.entries(faculty.phone).map(([key, val]) => `<div style="margin-bottom: 0.5rem;">📞 ${key}: ${Array.isArray(val) ? val.join(', ') : val}</div>`).join('') : ''}
-                        </div>
+                        <div class="detail-content">${contactHtml}</div>
                     </div>
                 `;
             }
 
-            if (faculty.website_links && Object.keys(faculty.website_links).length > 0) {
-                modalContent += `
-                    <div class="detail-section">
-                        <div class="detail-title">Website & Links</div>
-                        <div class="detail-content">
-                            ${Object.entries(faculty.website_links).map(([key, val]) => {
-                                const urls = Array.isArray(val) ? val : [val];
-                                return urls.map(url => `<div style="margin-bottom: 0.5rem;">🔗 <a href="${url}" target="_blank" class="modal-link">${key}</a></div>`).join('');
-                            }).join('')}
+            if (faculty.website_links && typeof faculty.website_links === 'object') {
+                let linksHtml = '';
+                try {
+                    linksHtml = Object.entries(faculty.website_links).map(([key, val]) => {
+                        const urls = Array.isArray(val) ? val : [val];
+                        return urls.map(url => `
+                            <div style="margin-bottom: 0.5rem;">
+                                🔗 <a href="${url}" target="_blank" class="modal-link">${key}</a>
+                            </div>
+                        `).join('');
+                    }).join('');
+                } catch (e) {
+                    console.warn("Error rendering links:", e);
+                }
+                
+                if (linksHtml) {
+                    modalContent += `
+                        <div class="detail-section">
+                            <div class="detail-title">Website & Links</div>
+                            <div class="detail-content">${linksHtml}</div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
             }
 
-            if (faculty.publications && Array.isArray(faculty.publications) && faculty.publications.length > 0) {
-                modalContent += `
-                    <div class="detail-section">
-                        <div class="detail-title">Selected Publications</div>
-                        <ul class="detail-list">
-                            ${faculty.publications.slice(0, 10).map(pub => `<li>${pub}</li>`).join('')}
-                            ${faculty.publications.length > 10 ? `<li class="more-items">+ ${faculty.publications.length - 10} more publications</li>` : ''}
-                        </ul>
-                    </div>
-                `;
+            if (faculty.publications) {
+                const results = Array.isArray(faculty.publications) ? faculty.publications : [faculty.publications];
+                if (results.length > 0 && results[0]) {
+                    modalContent += `
+                        <div class="detail-section">
+                            <div class="detail-title">Selected Publications</div>
+                            <ul class="detail-list">
+                                ${results.slice(0, 10).map(pub => `<li>${pub}</li>`).join('')}
+                                ${results.length > 10 ? `<li class="more-items">+ ${results.length - 10} more publications</li>` : ''}
+                            </ul>
+                        </div>
+                    `;
+                }
             }
 
             document.getElementById('modalBody').innerHTML = modalContent;
