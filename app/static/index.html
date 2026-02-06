@@ -40,7 +40,7 @@
         /* Hero Section */
         .hero-section {
             position: relative;
-            min-height: 20vh;
+            min-height: 40vh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -478,20 +478,16 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background: var(--overlay);
-            z-index: 10000;
+            z-index: 999999;
             overflow-y: auto;
-            padding: 2rem;
+            padding: 1rem;
         }
 
         .modal.active {
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding-top: 2rem;
-            padding-bottom: 2rem;
+            display: block;
         }
 
         .modal-content {
@@ -499,11 +495,9 @@
             border-radius: 20px;
             max-width: 900px;
             width: 100%;
-            max-height: calc(100vh - 4rem);
-            overflow-y: auto;
+            margin: 2rem auto;
             position: relative;
             animation: slideUp 0.3s ease-out;
-            margin: auto;
         }
 
         .more-items {
@@ -1008,9 +1002,6 @@
                 const isTopMatch = index === 0 && similarity >= 80;
                 const recommendationBadge = isTopMatch ? '<div class="recommendation-badge">⭐ Top Recommendation</div>' : '';
                 
-                // Escape quotes in faculty ID for onclick
-                const facultyIdEscaped = String(faculty.id).replace(/'/g, "\\'");
-                
                 return `
                     <div class="faculty-card fade-in ${isTopMatch ? 'top-match' : ''}" style="animation-delay: ${index * 0.05}s">
                         <div class="card-image-container">
@@ -1030,7 +1021,7 @@
                                 <div class="topics-text">${topics}</div>
                             </div>
 
-                            <button class="view-details-btn" onclick="showFacultyDetails('${facultyIdEscaped}')">
+                            <button class="view-details-btn" data-faculty-id="${faculty.id}">
                                 View Full Profile
                             </button>
                         </div>
@@ -1038,17 +1029,31 @@
                 `;
             }).join('');
             
+            // Add click listeners to all buttons
+            document.querySelectorAll('.view-details-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const facultyId = this.getAttribute('data-faculty-id');
+                    console.log("Button clicked for faculty ID:", facultyId);
+                    showFacultyDetails(facultyId);
+                });
+            });
+            
             setTimeout(notifyHeight, 100);
         }
 
         function showFacultyDetails(facultyId) {
-            console.log("Showing details for faculty ID:", facultyId);
+            console.log("=== Opening Modal ===");
+            console.log("Faculty ID:", facultyId);
+            console.log("Current displayed results:", currentDisplayedResults.length);
             
             // Find faculty in current displayed results
             const faculty = currentDisplayedResults.find(f => String(f.id) === String(facultyId));
             
             if (!faculty) {
                 console.error("Faculty not found. ID searched:", facultyId);
+                console.log("Available IDs:", currentDisplayedResults.map(f => f.id));
                 alert('Could not load faculty details. Please try again.');
                 return;
             }
@@ -1152,8 +1157,8 @@
                     <div class="detail-section">
                         <div class="detail-title">Contact Information</div>
                         <div class="detail-content">
-                            ${faculty.email && faculty.email.length > 0 ? `<div>📧 ${faculty.email.join(', ')}</div>` : ''}
-                            ${faculty.phone ? Object.entries(faculty.phone).map(([key, val]) => `<div>📞 ${key}: ${Array.isArray(val) ? val.join(', ') : val}</div>`).join('') : ''}
+                            ${faculty.email && faculty.email.length > 0 ? `<div style="margin-bottom: 0.5rem;">📧 Email: ${faculty.email.join(', ')}</div>` : ''}
+                            ${faculty.phone ? Object.entries(faculty.phone).map(([key, val]) => `<div style="margin-bottom: 0.5rem;">📞 ${key}: ${Array.isArray(val) ? val.join(', ') : val}</div>`).join('') : ''}
                         </div>
                     </div>
                 `;
@@ -1166,7 +1171,7 @@
                         <div class="detail-content">
                             ${Object.entries(faculty.website_links).map(([key, val]) => {
                                 const urls = Array.isArray(val) ? val : [val];
-                                return urls.map(url => `<div>🔗 <a href="${url}" target="_blank" class="modal-link">${key}</a></div>`).join('');
+                                return urls.map(url => `<div style="margin-bottom: 0.5rem;">🔗 <a href="${url}" target="_blank" class="modal-link">${key}</a></div>`).join('');
                             }).join('')}
                         </div>
                     </div>
@@ -1186,29 +1191,40 @@
             }
 
             document.getElementById('modalBody').innerHTML = modalContent;
+            
+            console.log("Modal content set, showing modal...");
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             
             // Scroll modal to top
             modal.scrollTop = 0;
             
+            console.log("Modal should now be visible");
+            console.log("Modal classes:", modal.className);
+            console.log("Modal display:", window.getComputedStyle(modal).display);
+            
             setTimeout(notifyHeight, 100);
         }
 
         function closeModal() {
+            console.log("Closing modal");
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
             setTimeout(notifyHeight, 100);
         }
 
+        // Close modal when clicking outside
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
+            console.log("Modal clicked, target:", e.target.className);
+            if (e.target === modal || e.target.classList.contains('modal')) {
                 closeModal();
             }
         });
 
+        // Close modal on Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && modal.classList.contains('active')) {
+                console.log("Escape pressed, closing modal");
                 closeModal();
             }
         });
