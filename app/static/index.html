@@ -260,7 +260,7 @@
         .card-image {
             width: 100%;
             height: 100%;
-            object-fit:;
+            object-fit:cover;
             transition: transform 0.4s;
         }
 
@@ -835,8 +835,43 @@
 
         // Load all faculty on page load
         window.addEventListener('DOMContentLoaded', async () => {
-            await loadAllFaculty();
+            // Priority 1: Check for injected results (from Python)
+            if (window.INJECTED_RESULTS) {
+                console.log("Using injected results:", window.INJECTED_RESULTS);
+                handleInjectedResults(window.INJECTED_RESULTS);
+            } else {
+                // Priority 2: Fallback to fetch (for development/legacy)
+                await loadAllFaculty();
+            }
         });
+
+        function handleInjectedResults(data) {
+            loading.classList.add('hidden');
+            if (data && data.length > 0) {
+                allFacultyData = data;
+                renderResults(data);
+                resultCount.innerText = data.length;
+                statsBar.classList.remove('hidden');
+                
+                const query = window.CURRENT_QUERY || "";
+                if (query) {
+                    document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${data.length}</span> faculty matches for "${query}"`;
+                    // Show recommendation banner if first result is a high match
+                    const topMatch = data[0];
+                    if (topMatch.similarity_score >= 0.8) {
+                        const recBanner = document.getElementById('recommendationBanner');
+                        const recText = document.getElementById('recommendationText');
+                        const topicStr = topMatch.topics ? `highlighted by their work in ${topMatch.topics.split(',').slice(0,2).join(', ')}` : 'their relevant research';
+                        recText.innerHTML = `For a query on <strong>"${query}"</strong>, we recommend approaching <strong>${topMatch.name}</strong>, ${topicStr}. They have <strong>${topMatch.works_count || 0}</strong> publications.`;
+                        recBanner.classList.remove('hidden');
+                    }
+                } else {
+                    document.querySelector('.stats-text').innerHTML = `Showing <span class="stats-count">${data.length}</span> faculty members`;
+                }
+            } else {
+                noResults.classList.remove('hidden');
+            }
+        }
 
         async function loadAllFaculty() {
             loading.classList.remove('hidden');
@@ -874,31 +909,33 @@
             }
         }
 
+        function syncWithStreamlit(query) {
+            // Signal Streamlit to update its query params
+            // This reloads the page with the new results injected by Python
+            const url = new URL(window.location.origin);
+            const parentUrl = new URL(window.parent.location.href);
+            parentUrl.searchParams.set('q', query);
+            window.parent.location.href = parentUrl.href;
+        }
+
         searchInput.addEventListener('input', (e) => {
             clearTimeout(timeout);
             const query = e.target.value.trim();
             
-            if (query.length > 2) {
-                timeout = setTimeout(() => performSearch(query), 500);
-            } else if (query.length === 0) {
-                // Reset to show all faculty when search is cleared
-                loadAllFaculty();
+            if (query.length > 3) { // Increased threshold for auto-sync
+                timeout = setTimeout(() => syncWithStreamlit(query), 1000);
             }
         });
 
         searchBtn.addEventListener('click', () => {
             const query = searchInput.value.trim();
-            if (query.length > 0) {
-                performSearch(query);
-            }
+            syncWithStreamlit(query);
         });
 
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const query = searchInput.value.trim();
-                if (query.length > 0) {
-                    performSearch(query);
-                }
+                syncWithStreamlit(query);
             }
         });
 
