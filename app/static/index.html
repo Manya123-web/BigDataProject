@@ -874,48 +874,22 @@
         }
 
         async function loadAllFaculty() {
-            loading.classList.remove('hidden');
-            resultsGrid.innerHTML = '';
-            noResults.classList.add('hidden');
-            statsBar.classList.add('hidden');
-            document.getElementById('recommendationBanner').classList.add('hidden');
-
-            try {
-                const response = await fetch('/faculty');
-                const data = await response.json();
-
-                loading.classList.add('hidden');
-
-                if (data && data.length > 0) {
-                    // Add default similarity score for display
-                    allFacultyData = data.map(faculty => ({
-                        ...faculty,
-                        similarity_score: 1.0
-                    }));
-                    renderResults(allFacultyData);
-                    resultCount.innerText = allFacultyData.length;
-                    statsBar.classList.remove('hidden');
-                    
-                    // Update stats text for initial load
-                    document.querySelector('.stats-text').innerHTML = `Showing <span class="stats-count">${allFacultyData.length}</span> faculty members`;
-                } else {
-                    noResults.classList.remove('hidden');
-                }
-
-            } catch (error) {
-                console.error('Error loading faculty:', error);
-                loading.classList.add('hidden');
-                noResults.classList.remove('hidden');
-            }
+            // Already handled by INJECTED_RESULTS
+            console.log("Initial load from INJECTED_RESULTS");
         }
 
         function syncWithStreamlit(query) {
             // Signal Streamlit to update its query params
             // This reloads the page with the new results injected by Python
-            const url = new URL(window.location.origin);
-            const parentUrl = new URL(window.parent.location.href);
-            parentUrl.searchParams.set('q', query);
-            window.parent.location.href = parentUrl.href;
+            try {
+                const parentUrl = new URL(window.parent.location.href);
+                parentUrl.searchParams.set('q', query);
+                window.parent.location.href = parentUrl.href;
+            } catch (e) {
+                console.warn("Parent location update failed (likely iframe restriction):", e);
+                // Fallback: update self if allowed, or just let the native search handle it
+                window.location.search = `?q=${encodeURIComponent(query)}`;
+            }
         }
 
         searchInput.addEventListener('input', (e) => {
@@ -1034,8 +1008,11 @@
 
         async function showFacultyDetails(facultyId) {
             try {
-                const response = await fetch(`/faculty/${facultyId}`);
-                const faculty = await response.json();
+                // Find faculty in already loaded data instead of fetching
+                const faculty = allFacultyData.find(f => f.id === facultyId);
+                if (!faculty) {
+                    throw new Error("Faculty data not found locally");
+                }
 
                 document.getElementById('modalName').textContent = faculty.name || 'Unknown';
                 document.getElementById('modalRole').textContent = faculty.faculty_type || 'Faculty Member';
