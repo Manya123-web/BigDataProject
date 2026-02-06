@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from collections import defaultdict
 
 
-df = pd.read_csv("data/processed/faculty_cleaned.csv")
+df = pd.read_csv("../data/processed/faculty_cleaned.csv")
 
 # %%
 JSON_COLUMNS = [
@@ -36,7 +36,7 @@ column_types
 
 
 # %%
-DB_PATH = "outputs/faculty.db"
+DB_PATH = "../outputs/faculty.db"
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 try :
@@ -48,15 +48,20 @@ try :
         faculty_type TEXT,
         name TEXT,
         education TEXT,
+        phone TEXT,
         address TEXT,
+        email TEXT,
         specializations TEXT,
         biography TEXT,
-        research TEXT,
-        phone TEXT,
-        email TEXT,
         teaching TEXT,
+        research TEXT,
         publications TEXT,
-        website_links TEXT
+        website_links TEXT,
+        image_url TEXT,
+        openalex_id TEXT,
+        citations INTEGER DEFAULT 0,
+        works_count INTEGER DEFAULT 0,
+        topics TEXT
     )""")
 
     conn.commit()
@@ -79,7 +84,7 @@ try:
     df.to_sql(
         "faculty",
         con=engine,
-        if_exists="replace",
+        if_exists="append",
         index=False
     )
     print("Data inserted into faculty.db successfully.")

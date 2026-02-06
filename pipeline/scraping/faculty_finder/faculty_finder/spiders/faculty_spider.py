@@ -34,6 +34,17 @@ class FacultySpider(scrapy.Spider):
             item["email"] = faculty.css("span.facultyemail::text").get(default="").strip()
             item["specializations"] = faculty.css("div.areaSpecialization p::text").get(default="").strip()
 
+            # Extract image from listing page (primary source)
+            img_src = faculty.css("div.facultyPhoto img::attr(src)").get()
+            if not img_src:
+                # Try alternative selectors on listing page
+                img_src = faculty.css("img::attr(src)").get()
+            
+            if img_src:
+                item["image_url"] = response.urljoin(img_src)
+            else:
+                item["image_url"] = None
+
             # Get profile link 
             profile_url = faculty.css("h3 a::attr(href)").get()
 
@@ -98,16 +109,17 @@ class FacultySpider(scrapy.Spider):
         
         item["website_links"] = links
 
-        # Image extraction (from profile page)
-        # Try finding the image in the usual profile photo container
-        img_src = response.css("div.facultyPhoto img::attr(src)").get()
-        if not img_src:
-             img_src = response.css("article img::attr(src)").get() # Fallback
+        # Image extraction (from profile page) - only if not already set from listing page
+        if not item.get("image_url"):
+            # Try finding the image in the usual profile photo container
+            img_src = response.css("div.facultyPhoto img::attr(src)").get()
+            if not img_src:
+                img_src = response.css("article img::attr(src)").get()  # Fallback
+            if not img_src:
+                img_src = response.css("img.facultyImage::attr(src)").get()  # Another fallback
 
-        if img_src:
-            item["image_url"] = response.urljoin(img_src)
-        else:
-            item["image_url"] = None
+            if img_src:
+                item["image_url"] = response.urljoin(img_src)
 
         # Log what we extracted (helpful for debugging)
         self.logger.info(f"Extracted profile for: {item.get('name', 'Unknown')}")

@@ -5,7 +5,7 @@ import os
 
 from model import get_model
 
-DB_PATH = "outputs/faculty.db"
+DB_PATH = "../outputs/faculty.db"
 INDEX_PATH = "data/faiss.index"
 IDS_PATH = "data/faculty_ids.pkl"
 META_PATH = "data/metadata.pkl"
@@ -28,6 +28,8 @@ def fetch_faculty():
             teaching,
             research,
             publications,
+            website_links,
+            address,
             image_url,
             citations,
             works_count,
@@ -52,17 +54,17 @@ def fetch_faculty():
             teaching,
             research,
             publications,
+            website_links,
+            address,
             image_url,
             citations,
             works_count,
             topics
         ) = row
 
-        # FILTER: Skip faculty with no name or no biography (to avoid empty results)
+        # No strict filters - include everyone to match search requirements
         if not name or not name.strip():
-            continue
-        if not biography or len(biography.strip()) < 10: 
-            continue
+            name = "Unknown Faculty"
 
         combined = f"""
         Faculty Name: {name or ""}
@@ -85,7 +87,11 @@ def fetch_faculty():
             "specializations": specializations,
             "teaching": teaching,
             "email": email,
+            "phone": phone,
+            "address": address,
             "image_url": image_url,
+            "publications": publications,
+            "website_links": website_links,
             "citations": citations,
             "works_count": works_count,
             "topics": topics

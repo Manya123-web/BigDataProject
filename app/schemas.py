@@ -16,6 +16,11 @@ class FacultyOut(BaseModel):
     teaching: Optional[List[str]]
     publications: Optional[List[str]]
     website_links: Optional[Dict[str, List[str]]]
+    image_url: Optional[str]
+    openalex_id: Optional[str]
+    citations: Optional[int]
+    works_count: Optional[int]
+    topics: Optional[str]
 
     class Config:
         orm_mode = True

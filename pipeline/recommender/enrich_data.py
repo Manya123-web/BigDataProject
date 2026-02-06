@@ -3,7 +3,7 @@ import requests
 import json
 import time
 
-DB_PATH = "outputs/faculty.db"
+DB_PATH = "../outputs/faculty.db"
 
 def enrich_faculty():
     print("Connecting to database...")
@@ -37,21 +37,20 @@ def enrich_faculty():
                     top_match = results[0]
                     
                     openalex_id = top_match.get("id")
-                    citations = top_match.get("cited_by_count", 0)
                     works_count = top_match.get("works_count", 0)
                     
                     # Extract topics (top 3)
                     topics_list = [t['display_name'] for t in top_match.get("topics", [])[:3]]
                     topics_str = ", ".join(topics_list)
 
-                    # Update DB
+                    # Update DB (removed citations field)
                     cursor.execute("""
                         UPDATE faculty 
-                        SET openalex_id = ?, citations = ?, works_count = ?, topics = ?
+                        SET openalex_id = ?, works_count = ?, topics = ?
                         WHERE id = ?
-                    """, (openalex_id, citations, works_count, topics_str, fid))
+                    """, (openalex_id, works_count, topics_str, fid))
                     
-                    print(f"  -> Match found! Citations: {citations}, Topics: {topics_str}")
+                    print(f"  -> Match found! Works: {works_count}, Topics: {topics_str}")
                 else:
                     print("  -> No match found in OpenAlex.")
             else:
