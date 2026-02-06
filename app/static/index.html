@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Recommender AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="hud-container">
+        
+        <header class="hud-header">
+            <div class="header-line"></div>
+            <h1>SYSTEM <span class="highlight">ONLINE</span> // FACULTY RECON</h1>
+            <p>SEMANTIC SEARCH PROTOCOL: <span class="status-ok">ACTIVE</span></p>
+        </header>
+
+        <div class="search-module">
+            <div class="input-wrapper">
+                <span class="prompt">>_</span>
+                <input type="text" id="searchInput" placeholder="ENTER QUERY PARAMETERS..." autofocus>
+            </div>
+            <div class="search-decoration"></div>
+        </div>
+
+        <div id="loading" class="hidden">
+            <div class="scanning-bar"></div>
+            <span class="blink">PROCESSING DATA...</span>
+        </div>
+
+        <div id="statsBar" class="hidden">
+            FOUND <span id="resultCount">0</span> MATCHES // SORTING BY RELEVANCE
+        </div>
+
+        <div id="resultsGrid" class="results-grid">
+            <!-- Cards go here -->
+        </div>
+
+        <div id="noResults" class="hidden">
+            <div class="warning-box">
+                [!] NO MATCHING RECORDS FOUND IN DATABASE
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

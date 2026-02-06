@@ -62,6 +62,10 @@ def search_faculty(query: str, k: int = 5):
         faculty = metadata[idx].copy()
         faculty["similarity_score"] = float(score)
 
+        # Robustness: ensure we don't return broken metadata
+        if not faculty.get("name"):
+            continue
+
         semantic_results.append(faculty)
 
     # =====================================================

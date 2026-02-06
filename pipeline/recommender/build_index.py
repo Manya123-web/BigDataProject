@@ -21,57 +21,57 @@ def fetch_faculty():
             faculty_type,
             name,
             education,
+            phone,
+            email,
             specializations,
             biography,
-            research,
             teaching,
-            publications
+            research,
+            publications,
+            image_url,
+            citations,
+            works_count,
+            topics
         FROM faculty
     """)
-
-    rows = cursor.fetchall()
-    conn.close()
 
     faculty_ids = []
     faculty_texts = []
     metadata = []
-
-    for row in rows:
+    
+    for row in cursor.fetchall():
         (
             fid,
             faculty_type,
             name,
             education,
+            phone,
+            email,
             specializations,
             biography,
-            research,
             teaching,
-            publications
+            research,
+            publications,
+            image_url,
+            citations,
+            works_count,
+            topics
         ) = row
+
+        # FILTER: Skip faculty with no name or no biography (to avoid empty results)
+        if not name or not name.strip():
+            continue
+        if not biography or len(biography.strip()) < 10: 
+            continue
 
         combined = f"""
         Faculty Name: {name or ""}
-
-        Faculty Type: {faculty_type or ""}
-
-        Education:
-        {education or ""}
-
-        Research Interests:
-        {research or ""}
-
-        Areas of Specialization:
-        {specializations or ""}
-
-        Courses Taught:
-        {teaching or ""}
-
-        Publications:
-        {publications or ""}
-
-        Biography:
-        {biography or ""}
-        """
+        Topics: {topics or ""}
+        Research: {research or ""}
+        Teaching: {teaching or ""}
+        Specializations: {specializations or ""}
+        Biography: {biography or ""}
+        """.strip()
 
         faculty_ids.append(fid)
         faculty_texts.append(combined)
@@ -80,9 +80,15 @@ def fetch_faculty():
             "id": fid,
             "name": name,
             "faculty_type": faculty_type,
+            "education": education,
             "research": research,
             "specializations": specializations,
-            "teaching": teaching
+            "teaching": teaching,
+            "email": email,
+            "image_url": image_url,
+            "citations": citations,
+            "works_count": works_count,
+            "topics": topics
         })
 
     return faculty_ids, faculty_texts, metadata

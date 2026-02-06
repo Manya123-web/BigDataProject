@@ -12,8 +12,13 @@ import json
 
 from app.db import get_db
 from app.schemas import FacultyOut
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 app = FastAPI(title="Faculty API")
+
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
 @app.on_event("startup")
 def startup_event():
     load_all()
@@ -115,7 +120,7 @@ def search_by_keyword(keyword: str, db: Session = Depends(get_db)):
 
 @app.get("/", include_in_schema=False)
 def root():
-    return RedirectResponse(url="/docs")
+    return FileResponse("app/static/index.html")
 
 @app.get("/recommend")
 def recommend(query: str, k: int = 5):

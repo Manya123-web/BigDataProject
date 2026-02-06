@@ -19,6 +19,7 @@ class FacultyFinderItem(scrapy.Item):
     publications = scrapy.Field()
     research = scrapy.Field()
     website_links = scrapy.Field()
+    image_url = scrapy.Field()
     faculty_type = scrapy.Field()
     
     pass

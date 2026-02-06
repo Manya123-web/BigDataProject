@@ -1,3 +1,10 @@
+import sys
+import os
+# Add user site-packages explicitly to fix import errors
+user_site = r"C:\Users\tcpladmin255\AppData\Roaming\Python\Python312\site-packages"
+if user_site not in sys.path and os.path.exists(user_site):
+    sys.path.append(user_site)
+
 from sentence_transformers import SentenceTransformer
 import faiss
 import pickle

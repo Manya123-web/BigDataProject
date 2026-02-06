@@ -98,6 +98,17 @@ class FacultySpider(scrapy.Spider):
         
         item["website_links"] = links
 
+        # Image extraction (from profile page)
+        # Try finding the image in the usual profile photo container
+        img_src = response.css("div.facultyPhoto img::attr(src)").get()
+        if not img_src:
+             img_src = response.css("article img::attr(src)").get() # Fallback
+
+        if img_src:
+            item["image_url"] = response.urljoin(img_src)
+        else:
+            item["image_url"] = None
+
         # Log what we extracted (helpful for debugging)
         self.logger.info(f"Extracted profile for: {item.get('name', 'Unknown')}")
         
