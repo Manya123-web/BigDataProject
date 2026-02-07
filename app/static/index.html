@@ -211,6 +211,18 @@
             background: #f1f5f9;
         }
 
+        .card-image-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
         .card-image {
             width: 100%;
             height: 100%;
@@ -278,6 +290,18 @@
             color: var(--primary);
             font-size: 3rem;
             font-weight: 700;
+            position: relative;
+        }
+
+        .placeholder-bg::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to top, rgba(37, 99, 235, 0.3) 0%, rgba(37, 99, 235, 0.1) 50%, transparent 100%);
+            pointer-events: none;
         }
 
         /* Loading Spinner */
@@ -412,22 +436,24 @@
             width: 85px;
             height: 85px;
             border-radius: 16px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.4);
             object-fit: cover;
             box-shadow: 0 8px 24px rgba(0,0,0,0.25);
             background: #e2e8f0;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
         .modal-portrait:hover {
             transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.35);
         }
 
         .modal-portrait-placeholder {
             width: 85px;
             height: 85px;
             border-radius: 16px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.4);
             background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
             display: flex;
             align-items: center;
@@ -436,6 +462,7 @@
             font-weight: 700;
             color: #4f46e5;
             box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            position: relative;
         }
 
         .modal-title-group {
@@ -488,7 +515,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.25rem;
-            padding: 2rem 2.5rem;
+            padding: 1.5rem 2.5rem 1.5rem 2.5rem;
         }
 
         @media (min-width: 900px) {
@@ -638,9 +665,9 @@
         .modal-stats {
             display: flex;
             gap: 1rem;
-            margin-bottom: 1.25rem;
+            margin-bottom: 0;
             flex-wrap: wrap;
-            padding: 2rem 2.5rem 0 2.5rem;
+            padding: 1.5rem 2.5rem 0 2.5rem;
         }
         
         .stat-item {
@@ -727,7 +754,7 @@
                 gap: 1rem;
             }
             .modal-grid { 
-                padding: 1.5rem 1.5rem; 
+                padding: 1.25rem 1.5rem; 
                 gap: 1rem;
             }
             .modal-portrait, .modal-portrait-placeholder { 
@@ -743,7 +770,7 @@
             }
             .stat-value { font-size: 1.5rem; }
             .modal-stats {
-                padding: 1.5rem 1.5rem 0 1.5rem;
+                padding: 1.25rem 1.5rem 0 1.5rem;
             }
             .detail-section {
                 padding: 1.25rem;
@@ -1163,7 +1190,7 @@
                 `;
             }
 
-            // Publications - Full Width
+            // Publications - Full Width with Read More
             if (faculty.publications) {
                 let pubs = faculty.publications;
                 if (typeof pubs === 'string') {
@@ -1172,13 +1199,21 @@
                 const pubList = Array.isArray(pubs) ? pubs : [pubs];
                 const validPubs = pubList.filter(p => p && p.trim());
                 if (validPubs.length > 0) {
+                    const displayPubs = validPubs.slice(0, 5);
+                    const hasMore = validPubs.length > 5;
+                    
                     modalContent += `
                         <div class="detail-section full-width">
-                            <div class="detail-title">Selected Publications</div>
-                            <ul class="detail-list">
-                                ${validPubs.slice(0, 8).map(pub => `<li>${pub}</li>`).join('')}
-                                ${validPubs.length > 8 ? `<li style="list-style: none; color: #94a3b8; font-style: italic; font-size: 0.85rem; margin-top: 0.5rem;">+ ${validPubs.length - 8} more publications</li>` : ''}
+                            <div class="detail-title">Key Publications</div>
+                            <ul class="detail-list publications-list">
+                                ${displayPubs.map(pub => `<li>${pub}</li>`).join('')}
+                                ${hasMore ? `<div class="hidden-pubs hidden">${validPubs.slice(5).map(pub => `<li>${pub}</li>`).join('')}</div>` : ''}
                             </ul>
+                            ${hasMore ? `
+                                <button class="read-more-btn" onclick="togglePublications(this)">
+                                    Show All ${validPubs.length} Publications
+                                </button>
+                            ` : ''}
                         </div>
                     `;
                 }
@@ -1203,6 +1238,19 @@
                 full.classList.add('hidden');
                 truncated.classList.remove('hidden');
                 btn.textContent = 'Read More';
+            }
+            setTimeout(notifyHeight, 50);
+        }
+
+        function togglePublications(btn) {
+            const hiddenPubs = btn.parentElement.querySelector('.hidden-pubs');
+            if (hiddenPubs.classList.contains('hidden')) {
+                hiddenPubs.classList.remove('hidden');
+                btn.textContent = 'Show Less';
+            } else {
+                hiddenPubs.classList.add('hidden');
+                const totalPubs = btn.parentElement.querySelectorAll('.publications-list li').length;
+                btn.textContent = `Show All ${totalPubs} Publications`;
             }
             setTimeout(notifyHeight, 50);
         }
