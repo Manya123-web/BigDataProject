@@ -7,6 +7,7 @@
     <title>Faculty Recommender AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #2563eb;
@@ -406,7 +407,8 @@
             border-radius: 20px;
             max-width: 1300px;
             width: 90%;
-            height: 90vh;
+            max-height: 90vh;
+            height: auto;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -796,7 +798,7 @@
         <nav class="navbar">
             <div class="logo" onclick="resetToHome()" style="cursor: pointer;">DAIICT Faculty Finder</div>
             <div class="nav-links">
-                <button class="nav-btn" onclick="resetToHome()">🏠 Home</button>
+                <button class="nav-btn" onclick="resetToHome()"><i class="fas fa-home" style="margin-right: 8px;"></i> Home</button>
             </div>
         </nav>
 
@@ -806,10 +808,10 @@
             </p>
 
             <div class="search-box">
-                <span class="search-icon">🔍</span>
+                <span class="search-icon"><i class="fas fa-search"></i></span>
                 <input type="text" id="searchInput" class="search-input"
                     placeholder="Search by name, research area, or expertise..." autofocus>
-                <button class="search-btn" id="searchBtn">Search</button>
+                <button class="search-btn" id="searchBtn"><i class="fas fa-search" style="margin-right: 8px;"></i> Search</button>
             </div>
         </div>
     </section>
@@ -830,7 +832,7 @@
             </div>
 
             <div id="recommendationBanner" class="recommendation-banner hidden">
-                <div class="banner-icon">💡</div>
+                <div class="banner-icon"><i class="fas fa-lightbulb"></i></div>
                 <div class="banner-content">
                     <h4 class="banner-title">Expert Recommendation</h4>
                     <p id="recommendationText" class="banner-text">Based on your query, we recommend approaching [Name]
@@ -1105,12 +1107,12 @@
             `;
 
             const sections = [
-                { title: 'Research Areas', key: 'topics', fullWidth: false },
-                { title: 'Education', key: 'education', fullWidth: false },
-                { title: 'Specializations', key: 'specializations', fullWidth: false },
-                { title: 'Research Interests', key: 'research', fullWidth: false },
-                { title: 'Biography', key: 'biography', isExpandable: true, fullWidth: true },
-                { title: 'Office Address', key: 'address', fullWidth: false }
+                { title: 'Research Areas', key: 'topics', fullWidth: false, icon: 'fas fa-microscope' },
+                { title: 'Education', key: 'education', fullWidth: false, icon: 'fas fa-graduation-cap' },
+                { title: 'Specializations', key: 'specializations', fullWidth: false, icon: 'fas fa-laptop-code' },
+                { title: 'Research Interests', key: 'research', fullWidth: false, icon: 'fas fa-lightbulb' },
+                { title: 'Biography', key: 'biography', isExpandable: true, fullWidth: true, icon: 'fas fa-id-card' },
+                { title: 'Office Address', key: 'address', fullWidth: false, icon: 'fas fa-map-marker-alt' }
             ];
 
             sections.forEach(section => {
@@ -1118,7 +1120,7 @@
                     let content = faculty[section.key];
                     let displayContent = content;
 
-                    if (section.isExpandable && content.length > 350) {
+                    if (typeof content === 'string' && section.isExpandable && content.length > 350) {
                         displayContent = `
                             <span class="truncated">${content.substring(0, 350)}...</span>
                             <span class="full hidden">${content}</span>
@@ -1129,7 +1131,7 @@
                     const fullWidthClass = section.fullWidth ? ' full-width' : '';
                     modalContent += `
                         <div class="detail-section${fullWidthClass}">
-                            <div class="detail-title">${section.title}</div>
+                            <div class="detail-title"><i class="${section.icon}" style="margin-right: 10px; color: #2563eb;"></i>${section.title}</div>
                             <div class="detail-content">${displayContent}</div>
                         </div>
                     `;
@@ -1151,8 +1153,14 @@
                 if (typeof str === 'string') {
                     // Try to parse as JSON first
                     try {
-                        const parsed = JSON.parse(str.replace(/'/g, '"'));
-                        str = parsed;
+                        const sanitized = str.trim();
+                        if (sanitized.startsWith('[') || sanitized.startsWith('{')) {
+                            const parsed = JSON.parse(sanitized.replace(/'/g, '"'));
+                            str = parsed;
+                        } else {
+                            // Direct string cleanup
+                            return sanitized.replace(/[\[\]'"{}]/g, '').trim();
+                        }
                     } catch(e) {
                         // Not JSON, just clean the string
                         return str.replace(/[\[\]'"{}]/g, '').trim();
@@ -1161,8 +1169,8 @@
                 
                 // If it's an array, join it
                 if (Array.isArray(str)) {
-                    return str.filter(item => item && item.toString().trim())
-                              .map(item => item.toString().trim())
+                    return str.map(item => cleanContactString(item))
+                              .filter(v => v)
                               .join(', ');
                 }
                 
@@ -1170,15 +1178,9 @@
                 if (typeof str === 'object') {
                     const values = [];
                     Object.values(str).forEach(val => {
-                        if (Array.isArray(val)) {
-                            values.push(...val);
-                        } else if (val) {
-                            values.push(val);
-                        }
+                        values.push(cleanContactString(val));
                     });
-                    return values.filter(v => v && v.toString().trim())
-                                 .map(v => v.toString().trim())
-                                 .join(', ');
+                    return values.filter(v => v).join(', ');
                 }
                 
                 return str.toString().trim();
@@ -1187,19 +1189,19 @@
             // Format Emails
             const emailStr = cleanContactString(faculty.email);
             if (emailStr && emailStr.includes('@')) {
-                contactHtml += `<div style="margin-bottom: 0.75rem;"><strong style="color: #1e40af;">📧 Email:</strong> ${emailStr}</div>`;
+                contactHtml += `<div style="margin-bottom: 0.75rem;"><strong style="color: #1e40af;"><i class="fas fa-envelope" style="margin-right: 8px;"></i> Email:</strong> ${emailStr}</div>`;
             }
 
             // Format Phones
             const phoneStr = cleanContactString(faculty.phone);
             if (phoneStr && phoneStr.length > 3) {
-                contactHtml += `<div><strong style="color: #1e40af;">📞 Phone:</strong> ${phoneStr}</div>`;
+                contactHtml += `<div><strong style="color: #1e40af;"><i class="fas fa-phone-alt" style="margin-right: 8px;"></i> Phone:</strong> ${phoneStr}</div>`;
             }
             
             if (contactHtml) {
                 modalContent += `
-                    <div class="detail-section">
-                        <div class="detail-title">Contact Information</div>
+                    <div class="detail-section" style="margin: 0 2.5rem 1.5rem 2.5rem;">
+                        <div class="detail-title"><i class="fas fa-address-book" style="margin-right: 10px; color: #2563eb;"></i>Contact Information</div>
                         <div class="detail-content">${contactHtml}</div>
                     </div>
                 `;
@@ -1218,11 +1220,11 @@
                     const hasMore = validPubs.length > 5;
                     
                     modalContent += `
-                        <div class="detail-section full-width">
-                            <div class="detail-title">Key Publications</div>
+                        <div class="detail-section full-width" style="margin: 0 2.5rem 2.5rem 2.5rem;">
+                            <div class="detail-title"><i class="fas fa-book" style="margin-right: 10px; color: #2563eb;"></i>Key Publications</div>
                             <ul class="detail-list publications-list">
                                 ${displayPubs.map(pub => `<li>${pub}</li>`).join('')}
-                                ${hasMore ? `<div class="hidden-pubs hidden">${validPubs.slice(5).map(pub => `<li>${pub}</li>`).join('')}</div>` : ''}
+                                ${hasMore ? `<div class="hidden-pubs hidden" style="margin-top: 5px;">${validPubs.slice(5).map(pub => `<li>${pub}</li>`).join('')}</div>` : ''}
                             </ul>
                             ${hasMore ? `
                                 <button class="read-more-btn" onclick="togglePublications(this)">
