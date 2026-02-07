@@ -4,6 +4,8 @@ An end-to-end **data engineering pipeline** to scrape, clean, analyze, store, an
 
 The project focuses on **data quality, reproducibility, and clean pipeline design**, utilizing modern NLP techniques for semantic search.
 
+**Live Cloud Deployed Link:**  [Streamlit App](https://faculty-finder.streamlit.app/) *(Placeholder)*
+
 ---
 
 ## Overview
