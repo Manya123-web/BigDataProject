@@ -24,21 +24,27 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             color: var(--text-dark);
-            overflow-x: hidden;
+            background: #f8fafc;
         }
 
         /* Hero Section */
         .hero-section {
             position: relative;
-            min-height: 85vh;
+            min-height: 20vh;
             display: flex;
             align-items: center;
             justify-content: center;
             background: url('https://daiict.ac.in/sites/default/files/2021-03/11.jpg') center/cover;
-            background-attachment: fixed;
         }
 
         .hero-section::before {
@@ -81,17 +87,17 @@
         }
 
         .hero-title {
-            font-size: 3.5rem;
+            font-size: 2.25rem;
             font-weight: 700;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
             line-height: 1.2;
         }
 
         .hero-subtitle {
-            font-size: 1.375rem;
+            font-size: 1rem;
             font-weight: 400;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             color: rgba(255, 255, 255, 0.95);
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
         }
@@ -157,12 +163,12 @@
         /* Main Content */
         .main-content {
             background: #f8fafc;
-            padding: 4rem 3rem;
+            padding: 2.5rem 2rem;
             min-height: 50vh;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
@@ -215,18 +221,19 @@
 
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 2.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.25rem;
         }
 
         .faculty-card {
             background: var(--white);
-            border-radius: 16px;
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: var(--card-shadow);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             cursor: pointer;
+            height: fit-content;
         }
 
         .faculty-card::before {
@@ -235,15 +242,15 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
+            height: 4px;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             transform: scaleX(0);
-            transition: transform 0.4s;
+            transition: transform 0.3s;
         }
 
         .faculty-card:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
         }
 
         .faculty-card:hover::before {
@@ -252,7 +259,7 @@
 
         .card-image-container {
             position: relative;
-            height: 210px;
+            height: 180px;
             overflow: hidden;
             background: linear-gradient(135deg, #667eea, #764ba2);
         }
@@ -260,7 +267,8 @@
         .card-image {
             width: 100%;
             height: 100%;
-            object-fit:cover;
+            object-fit: cover;
+            object-position: center 20%;
             transition: transform 0.4s;
         }
 
@@ -276,58 +284,81 @@
             align-items: center;
             justify-content: center;
             color: #64748b;
-            font-size: 4rem;
+            font-size: 3.5rem;
             font-weight: 700;
         }
 
         .match-badge {
             position: absolute;
-            top: 1.25rem;
-            right: 1.25rem;
+            top: 0.625rem;
+            right: 0.625rem;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 0.625rem 1.25rem;
+            padding: 0.3rem 0.7rem;
             border-radius: 50px;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.75rem;
             color: var(--primary);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .card-content {
-            padding: 2rem;
+            padding: 1rem;
         }
 
         .faculty-name {
-            font-size: 1.5rem;
+            font-size: 1rem;
             font-weight: 700;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.4rem;
             color: var(--text-dark);
+            line-height: 1.3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .faculty-name > span:first-child {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .works-badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.625rem;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .faculty-role {
             display: inline-block;
             background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.1));
             color: var(--primary);
-            padding: 0.5rem 1.25rem;
+            padding: 0.2rem 0.6rem;
             border-radius: 50px;
-            font-size: 0.875rem;
+            font-size: 0.625rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.7rem;
         }
 
         .recommendation-badge {
             position: absolute;
-            bottom: 1.25rem;
-            left: 1.25rem;
+            bottom: 0.7rem;
+            left: 0.7rem;
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
-            padding: 0.5rem 1rem;
+            padding: 0.3rem 0.6rem;
             border-radius: 50px;
             font-weight: 700;
-            font-size: 0.875rem;
+            font-size: 0.6875rem;
             box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
             z-index: 5;
             animation: pulse 2s infinite;
@@ -375,23 +406,11 @@
         }
 
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            display: none;
         }
 
         .stat-box {
-            background: #f9fafb;
-            padding: 1rem;
-            border-radius: 10px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .stat-box:hover {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(16, 185, 129, 0.05));
-            transform: translateY(-3px);
+            display: none;
         }
 
         .stat-label {
@@ -410,63 +429,66 @@
         }
 
         .topics-section {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 2px solid #f3f4f6;
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
         }
 
         .topics-label {
-            font-size: 0.8125rem;
+            font-size: 0.625rem;
             color: var(--text-light);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.4rem;
             font-weight: 600;
         }
 
         .topics-text {
-            font-size: 0.9375rem;
+            font-size: 0.75rem;
             color: var(--text-dark);
-            line-height: 1.6;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2.4em;
         }
 
         .view-details-btn {
             width: 100%;
-            padding: 0.875rem;
+            padding: 0.625rem;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: var(--white);
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: 600;
-            font-size: 0.9375rem;
+            font-size: 0.75rem;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 1rem;
+            margin-top: 0.7rem;
         }
 
         .view-details-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
         }
 
-        /* Modal */
+        /* Modal - Fixed for Streamlit iframe */
         .modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background: var(--overlay);
-            z-index: 1000;
+            z-index: 999999;
             overflow-y: auto;
-            padding: 2rem;
+            padding: 1rem;
         }
 
         .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
         }
 
         .modal-content {
@@ -474,8 +496,7 @@
             border-radius: 20px;
             max-width: 900px;
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
+            margin: 2rem auto;
             position: relative;
             animation: slideUp 0.3s ease-out;
         }
@@ -510,19 +531,19 @@
 
         .modal-header {
             position: relative;
-            padding: 3rem 3rem 2rem;
+            padding: 2rem 2rem 1.5rem;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: var(--white);
             border-radius: 20px 20px 0 0;
         }
 
         .modal-image-container {
-            width: 150px;
-            height: 150px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            border: 5px solid var(--white);
+            border: 4px solid var(--white);
             overflow: hidden;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             background: #e2e8f0;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
@@ -541,20 +562,20 @@
             align-items: center;
             justify-content: center;
             color: #64748b;
-            font-size: 3rem;
+            font-size: 2rem;
             font-weight: 700;
         }
 
         .close-modal {
             position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
+            top: 1rem;
+            right: 1rem;
             background: rgba(255, 255, 255, 0.2);
             border: none;
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             color: var(--white);
             cursor: pointer;
             transition: all 0.3s;
@@ -569,22 +590,22 @@
         }
 
         .modal-faculty-name {
-            font-size: 2.25rem;
+            font-size: 1.75rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
 
         .modal-faculty-role {
-            font-size: 1.125rem;
+            font-size: 1rem;
             opacity: 0.9;
         }
 
         .modal-body {
-            padding: 2.5rem 3rem;
+            padding: 1.5rem 2rem 2rem;
         }
 
         .detail-section {
-            margin-bottom: 2.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .detail-section:last-child {
@@ -592,17 +613,17 @@
         }
 
         .detail-title {
-            font-size: 1.125rem;
+            font-size: 0.875rem;
             font-weight: 700;
             color: var(--primary);
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .detail-content {
-            font-size: 1rem;
-            line-height: 1.7;
+            font-size: 0.875rem;
+            line-height: 1.6;
             color: var(--text-dark);
         }
 
@@ -628,27 +649,27 @@
         .modal-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .modal-stat-box {
             background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(16, 185, 129, 0.05));
-            padding: 1.5rem;
+            padding: 1rem;
             border-radius: 12px;
             text-align: center;
         }
 
         .modal-stat-label {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: var(--text-light);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
 
         .modal-stat-value {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary);
         }
@@ -696,11 +717,11 @@
 
         @media (max-width: 768px) {
             .hero-title {
-                font-size: 2.5rem;
+                font-size: 2rem;
             }
 
             .hero-subtitle {
-                font-size: 1.125rem;
+                font-size: 1rem;
             }
 
             .navbar {
@@ -723,7 +744,7 @@
 
             .results-grid {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
+                gap: 1.25rem;
             }
 
             .stats-bar {
@@ -733,7 +754,8 @@
             }
 
             .modal-content {
-                margin: 1rem;
+                margin: 0.5rem;
+                max-height: calc(100vh - 1rem);
             }
 
             .modal-header,
@@ -832,30 +854,55 @@
 
         let timeout = null;
         let allFacultyData = [];
+        let currentDisplayedResults = [];
+
+        // Notify parent (Streamlit) about content height changes
+        function notifyHeight() {
+            const height = document.documentElement.scrollHeight;
+            window.parent.postMessage({
+                type: 'streamlit:setComponentValue',
+                height: height
+            }, '*');
+        }
+
+        // Observe DOM changes to update height
+        const resizeObserver = new ResizeObserver(() => {
+            notifyHeight();
+        });
+        resizeObserver.observe(document.body);
 
         // Load all faculty on page load
         window.addEventListener('DOMContentLoaded', async () => {
-            // Priority 1: Check for injected results (from Python)
-            if (window.INJECTED_RESULTS) {
-                console.log("Using injected results:", window.INJECTED_RESULTS);
+            console.log('=== Page loaded, checking for data ===');
+            console.log('INJECTED_RESULTS:', typeof window.INJECTED_RESULTS, window.INJECTED_RESULTS ? window.INJECTED_RESULTS.length : 'undefined');
+            console.log('CURRENT_QUERY:', window.CURRENT_QUERY);
+            
+            if (window.INJECTED_RESULTS && Array.isArray(window.INJECTED_RESULTS)) {
+                console.log("✓ Using injected results:", window.INJECTED_RESULTS.length, "faculty members");
                 handleInjectedResults(window.INJECTED_RESULTS);
             } else {
-                // Priority 2: Fallback to fetch (for development/legacy)
-                await loadAllFaculty();
+                console.error("✗ No injected results found");
+                console.log("Available global variables:", Object.keys(window));
+                noResults.classList.remove('hidden');
+                loading.classList.add('hidden');
             }
+            notifyHeight();
         });
 
         function handleInjectedResults(data) {
             loading.classList.add('hidden');
             if (data && data.length > 0) {
                 allFacultyData = data;
+                currentDisplayedResults = data;
                 renderResults(data);
                 resultCount.innerText = data.length;
                 statsBar.classList.remove('hidden');
                 
                 const query = window.CURRENT_QUERY || "";
                 if (query) {
-                    document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${data.length}</span> faculty matches for "${query}"`;
+                    searchInput.value = query;
+                    document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${data.length}</span> faculty matches`;
+                    
                     // Show recommendation banner if first result is a high match
                     const topMatch = data[0];
                     if (topMatch.similarity_score >= 0.8) {
@@ -871,119 +918,75 @@
             } else {
                 noResults.classList.remove('hidden');
             }
-        }
-
-        async function loadAllFaculty() {
-            loading.classList.remove('hidden');
-            resultsGrid.innerHTML = '';
-            noResults.classList.add('hidden');
-            statsBar.classList.add('hidden');
-            document.getElementById('recommendationBanner').classList.add('hidden');
-
-            try {
-                const response = await fetch('/faculty');
-                const data = await response.json();
-
-                loading.classList.add('hidden');
-
-                if (data && data.length > 0) {
-                    // Add default similarity score for display
-                    allFacultyData = data.map(faculty => ({
-                        ...faculty,
-                        similarity_score: 1.0
-                    }));
-                    renderResults(allFacultyData);
-                    resultCount.innerText = allFacultyData.length;
-                    statsBar.classList.remove('hidden');
-                    
-                    // Update stats text for initial load
-                    document.querySelector('.stats-text').innerHTML = `Showing <span class="stats-count">${allFacultyData.length}</span> faculty members`;
-                } else {
-                    noResults.classList.remove('hidden');
-                }
-
-            } catch (error) {
-                console.error('Error loading faculty:', error);
-                loading.classList.add('hidden');
-                noResults.classList.remove('hidden');
-            }
-        }
-
-        function syncWithStreamlit(query) {
-            // Signal Streamlit to update its query params
-            // This reloads the page with the new results injected by Python
-            const url = new URL(window.location.origin);
-            const parentUrl = new URL(window.parent.location.href);
-            parentUrl.searchParams.set('q', query);
-            window.parent.location.href = parentUrl.href;
-        }
-
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(timeout);
-            const query = e.target.value.trim();
             
-            if (query.length > 3) { // Increased threshold for auto-sync
-                timeout = setTimeout(() => syncWithStreamlit(query), 1000);
+            setTimeout(notifyHeight, 100);
+        }
+
+        // Client-side filtering for instant results
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            
+            if (query === "") {
+                currentDisplayedResults = allFacultyData;
+                renderResults(allFacultyData);
+                resultCount.innerText = allFacultyData.length;
+                document.getElementById('recommendationBanner').classList.add('hidden');
+                document.querySelector('.stats-text').innerHTML = `Showing <span class="stats-count">${allFacultyData.length}</span> faculty members`;
+                return;
             }
+
+            const filtered = allFacultyData.filter(f => 
+                (f.name && f.name.toLowerCase().includes(query)) || 
+                (f.topics && f.topics.toLowerCase().includes(query)) || 
+                (f.research && f.research.toLowerCase().includes(query)) ||
+                (f.specializations && f.specializations.toLowerCase().includes(query)) ||
+                (f.biography && f.biography.toLowerCase().includes(query))
+            );
+
+            currentDisplayedResults = filtered;
+            renderResults(filtered);
+            resultCount.innerText = filtered.length;
+            document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${filtered.length}</span> matches`;
+            
+            // Hide recommendation banner during filter
+            document.getElementById('recommendationBanner').classList.add('hidden');
+            
+            if (filtered.length === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+            
+            setTimeout(notifyHeight, 100);
         });
 
+        // Server-side search on button click
         searchBtn.addEventListener('click', () => {
             const query = searchInput.value.trim();
-            syncWithStreamlit(query);
+            if (query) {
+                // Reload with new query parameter
+                window.location.href = `?q=${encodeURIComponent(query)}`;
+            }
         });
 
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const query = searchInput.value.trim();
-                syncWithStreamlit(query);
+                if (query) {
+                    window.location.href = `?q=${encodeURIComponent(query)}`;
+                }
             }
         });
 
-        async function performSearch(query) {
-            loading.classList.remove('hidden');
-            resultsGrid.innerHTML = '';
-            noResults.classList.add('hidden');
-            statsBar.classList.add('hidden');
-
-            try {
-                const response = await fetch(`/recommend?query=${encodeURIComponent(query)}&k=20`);
-                const data = await response.json();
-
-                loading.classList.add('hidden');
-
-                if (data.recommendations && data.recommendations.length > 0) {
-                    allFacultyData = data.recommendations;
-                    renderResults(data.recommendations);
-                    resultCount.innerText = data.recommendations.length;
-                    statsBar.classList.remove('hidden');
-                    
-                    // Show recommendation banner if first result is a high match
-                    const topMatch = data.recommendations[0];
-                    if (topMatch.similarity_score >= 0.8) {
-                        const recBanner = document.getElementById('recommendationBanner');
-                        const recText = document.getElementById('recommendationText');
-                        const topicStr = topMatch.topics ? `highlighted by their work in ${topMatch.topics.split(',').slice(0,2).join(', ')}` : 'their relevant research';
-                        recText.innerHTML = `For a query on <strong>"${query}"</strong>, we recommend approaching <strong>${topMatch.name}</strong>, ${topicStr}. They have <strong>${topMatch.works_count || 0}</strong> publications.`;
-                        recBanner.classList.remove('hidden');
-                    } else {
-                        document.getElementById('recommendationBanner').classList.add('hidden');
-                    }
-                    
-                    // Update stats text for search results
-                    document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${data.recommendations.length}</span> faculty matches`;
-                } else {
-                    noResults.classList.remove('hidden');
-                    document.getElementById('recommendationBanner').classList.add('hidden');
-                }
-
-            } catch (error) {
-                console.error('Error:', error);
-                loading.classList.add('hidden');
-                noResults.classList.remove('hidden');
-            }
-        }
-
         function renderResults(facultyList) {
+            if (facultyList.length === 0) {
+                resultsGrid.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            noResults.classList.add('hidden');
+            
             resultsGrid.innerHTML = facultyList.map((faculty, index) => {
                 let imageHtml = '';
                 if (faculty.image_url) {
@@ -994,201 +997,240 @@
                 }
                 const works = (faculty.works_count || 0).toLocaleString();
                 const topics = faculty.topics || "General Research";
-                const similarity = Math.round(faculty.similarity_score * 100);
+                const similarity = Math.round((faculty.similarity_score || 1.0) * 100);
                 
-                // Recommendation logic: highlight the first result if it has a high score
+                // Recommendation logic
                 const isTopMatch = index === 0 && similarity >= 80;
                 const recommendationBadge = isTopMatch ? '<div class="recommendation-badge">⭐ Top Recommendation</div>' : '';
                 
                 return `
-                    <div class="faculty-card fade-in ${isTopMatch ? 'top-match' : ''}" style="animation-delay: ${index * 0.1}s">
+                    <div class="faculty-card fade-in ${isTopMatch ? 'top-match' : ''}" style="animation-delay: ${index * 0.05}s">
                         <div class="card-image-container">
                             ${imageHtml}
                             <div class="match-badge">${similarity}% Match</div>
                             ${recommendationBadge}
                         </div>
                         <div class="card-content">
-                            <h2 class="faculty-name">${faculty.name}</h2>
+                            <h2 class="faculty-name">
+                                <span>${faculty.name || 'Unknown'}</span>
+                                <span class="works-badge">${works} works</span>
+                            </h2>
                             <span class="faculty-role">${faculty.faculty_type || 'Faculty'}</span>
-                            
-                            <div class="stats-grid">
-                                <div class="stat-box">
-                                    <div class="stat-label">Works</div>
-                                    <div class="stat-value">${works}</div>
-                                </div>
-                            </div>
 
                             <div class="topics-section">
                                 <div class="topics-label">Research Areas</div>
                                 <div class="topics-text">${topics}</div>
                             </div>
 
-                            <button class="view-details-btn" onclick="showFacultyDetails(${faculty.id})">
+                            <button class="view-details-btn" data-faculty-id="${faculty.id}">
                                 View Full Profile
                             </button>
                         </div>
                     </div>
                 `;
             }).join('');
+            
+            // Add click listeners to all buttons
+            document.querySelectorAll('.view-details-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const facultyId = this.getAttribute('data-faculty-id');
+                    console.log("Button clicked for faculty ID:", facultyId);
+                    showFacultyDetails(facultyId);
+                });
+            });
+            
+            setTimeout(notifyHeight, 100);
         }
 
-        async function showFacultyDetails(facultyId) {
-            try {
-                const response = await fetch(`/faculty/${facultyId}`);
-                const faculty = await response.json();
+        function showFacultyDetails(facultyId) {
+            console.log("=== Opening Modal ===");
+            console.log("Searching for Faculty ID:", facultyId);
+            
+            // 1. Robust lookup: Search in both current and all data, and use loose comparison
+            let faculty = currentDisplayedResults.find(f => String(f.id) == String(facultyId));
+            if (!faculty) {
+                faculty = allFacultyData.find(f => String(f.id) == String(facultyId));
+            }
+            
+            if (!faculty) {
+                console.error("Faculty not found. ID searched:", facultyId);
+                console.log("Available Current IDs:", currentDisplayedResults.map(f => f.id));
+                console.log("Total records in allFacultyData:", allFacultyData.length);
+                alert('Could not load faculty details. Please try again.');
+                return;
+            }
+            
+            console.log("Found faculty:", faculty.name);
 
-                document.getElementById('modalName').textContent = faculty.name || 'Unknown';
-                document.getElementById('modalRole').textContent = faculty.faculty_type || 'Faculty Member';
+            document.getElementById('modalName').textContent = faculty.name || 'Unknown';
+            document.getElementById('modalRole').textContent = faculty.faculty_type || 'Faculty Member';
 
-                const similarity = allFacultyData.find(f => f.id === facultyId)?.similarity_score || 0;
+            const similarity = faculty.similarity_score || 0;
 
-                let imageHtml = '';
-                if (faculty.image_url) {
-                    imageHtml = `<div class="modal-image-container"><img src="${faculty.image_url}" alt="${faculty.name}" class="modal-image"></div>`;
-                } else {
-                    const initials = faculty.name ? faculty.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : '??';
-                    imageHtml = `<div class="modal-image-container"><div class="modal-placeholder-bg">${initials}</div></div>`;
-                }
+            let imageHtml = '';
+            if (faculty.image_url) {
+                imageHtml = `<div class="modal-image-container"><img src="${faculty.image_url}" alt="${faculty.name}" class="modal-image"></div>`;
+            } else {
+                const initials = faculty.name ? faculty.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : '??';
+                imageHtml = `<div class="modal-image-container"><div class="modal-placeholder-bg">${initials}</div></div>`;
+            }
 
-                let modalContent = `
-                    ${imageHtml}
-                    <div class="modal-stats">
-                        <div class="modal-stat-box">
-                            <div class="modal-stat-label">Match Score</div>
-                            <div class="modal-stat-value">${Math.round(similarity * 100)}%</div>
-                        </div>
-                        <div class="modal-stat-box">
-                            <div class="modal-stat-label">Works</div>
-                            <div class="modal-stat-value">${faculty.works_count || 0}</div>
-                        </div>
+            let modalContent = `
+                ${imageHtml}
+                <div class="modal-stats">
+                    <div class="modal-stat-box">
+                        <div class="modal-stat-label">Match Score</div>
+                        <div class="modal-stat-value">${Math.round(similarity * 100)}%</div>
                     </div>
-                `;
+                    <div class="modal-stat-box">
+                        <div class="modal-stat-label">Works</div>
+                        <div class="modal-stat-value">${faculty.works_count || 0}</div>
+                    </div>
+                </div>
+            `;
 
-                if (faculty.topics) {
+            const sections = [
+                { title: 'Research Topics', key: 'topics' },
+                { title: 'Education', key: 'education' },
+                { title: 'Specializations', key: 'specializations' },
+                { title: 'Research Interests', key: 'research' },
+                { title: 'Biography', key: 'biography' },
+                { title: 'Office Address', key: 'address', prefix: '📍 ' }
+            ];
+
+            sections.forEach(section => {
+                if (faculty[section.key]) {
                     modalContent += `
                         <div class="detail-section">
-                            <div class="detail-title">Research Topics</div>
-                            <div class="detail-content">${faculty.topics}</div>
+                            <div class="detail-title">${section.title}</div>
+                            <div class="detail-content">${section.prefix || ''}${faculty[section.key]}</div>
                         </div>
                     `;
                 }
+            });
 
-                if (faculty.education) {
-                    modalContent += `
-                        <div class="detail-section">
-                            <div class="detail-title">Education</div>
-                            <div class="detail-content">${faculty.education}</div>
-                        </div>
-                    `;
-                }
-
-                if (faculty.specializations) {
-                    modalContent += `
-                        <div class="detail-section">
-                            <div class="detail-title">Specializations</div>
-                            <div class="detail-content">${faculty.specializations}</div>
-                        </div>
-                    `;
-                }
-
-                if (faculty.research) {
-                    modalContent += `
-                        <div class="detail-section">
-                            <div class="detail-title">Research Interests</div>
-                            <div class="detail-content">${faculty.research}</div>
-                        </div>
-                    `;
-                }
-
-                if (faculty.biography) {
-                    modalContent += `
-                        <div class="detail-section">
-                            <div class="detail-title">Biography</div>
-                            <div class="detail-content">${faculty.biography}</div>
-                        </div>
-                    `;
-                }
-
-                if (faculty.address) {
-                    modalContent += `
-                        <div class="detail-section">
-                            <div class="detail-title">Office Address</div>
-                            <div class="detail-content">📍 ${faculty.address}</div>
-                        </div>
-                    `;
-                }
-
-                if (faculty.teaching && Array.isArray(faculty.teaching) && faculty.teaching.length > 0) {
+            if (faculty.teaching) {
+                const teaching = Array.isArray(faculty.teaching) ? faculty.teaching : [faculty.teaching];
+                if (teaching.length > 0 && teaching[0]) {
                     modalContent += `
                         <div class="detail-section">
                             <div class="detail-title">Teaching</div>
                             <ul class="detail-list">
-                                ${faculty.teaching.map(course => `<li>${course}</li>`).join('')}
+                                ${teaching.map(course => `<li>${course}</li>`).join('')}
                             </ul>
                         </div>
                     `;
                 }
+            }
 
-                if ((faculty.email && faculty.email.length > 0) || (faculty.phone && Object.keys(faculty.phone).length > 0)) {
-                    modalContent += `
-                        <div class="detail-section">
-                            <div class="detail-title">Contact Information</div>
-                            <div class="detail-content">
-                                ${faculty.email && faculty.email.length > 0 ? `<div>📧 ${faculty.email.join(', ')}</div>` : ''}
-                                ${faculty.phone ? Object.entries(faculty.phone).map(([key, val]) => `<div>📞 ${key}: ${val.join(', ')}</div>`).join('') : ''}
-                            </div>
-                        </div>
-                    `;
+            // Contact Info with Defensive Mapping
+            let contactHtml = '';
+            if (faculty.email) {
+                const emails = Array.isArray(faculty.email) ? faculty.email : [faculty.email];
+                if (emails.length > 0 && emails[0]) {
+                    contactHtml += `<div style="margin-bottom: 0.5rem;">📧 Email: ${emails.join(', ')}</div>`;
                 }
+            }
+            if (faculty.phone) {
+                if (typeof faculty.phone === 'object' && !Array.isArray(faculty.phone)) {
+                    contactHtml += Object.entries(faculty.phone).map(([key, val]) => {
+                        const valStr = Array.isArray(val) ? val.join(', ') : val;
+                        return `<div style="margin-bottom: 0.5rem;">📞 ${key}: ${valStr}</div>`;
+                    }).join('');
+                } else {
+                    const phones = Array.isArray(faculty.phone) ? faculty.phone : [faculty.phone];
+                    if (phones.length > 0 && phones[0]) {
+                        contactHtml += `<div style="margin-bottom: 0.5rem;">📞 Phone: ${phones.join(', ')}</div>`;
+                    }
+                }
+            }
 
-                if (faculty.website_links && Object.keys(faculty.website_links).length > 0) {
+            if (contactHtml) {
+                modalContent += `
+                    <div class="detail-section">
+                        <div class="detail-title">Contact Information</div>
+                        <div class="detail-content">${contactHtml}</div>
+                    </div>
+                `;
+            }
+
+            if (faculty.website_links && typeof faculty.website_links === 'object') {
+                let linksHtml = '';
+                try {
+                    linksHtml = Object.entries(faculty.website_links).map(([key, val]) => {
+                        const urls = Array.isArray(val) ? val : [val];
+                        return urls.map(url => `
+                            <div style="margin-bottom: 0.5rem;">
+                                🔗 <a href="${url}" target="_blank" class="modal-link">${key}</a>
+                            </div>
+                        `).join('');
+                    }).join('');
+                } catch (e) {
+                    console.warn("Error rendering links:", e);
+                }
+                
+                if (linksHtml) {
                     modalContent += `
                         <div class="detail-section">
                             <div class="detail-title">Website & Links</div>
-                            <div class="detail-content">
-                                ${Object.entries(faculty.website_links).map(([key, val]) => {
-                                    return val.map(url => `<div>🔗 <a href="${url}" target="_blank" class="modal-link">${key}</a></div>`).join('');
-                                }).join('')}
-                            </div>
+                            <div class="detail-content">${linksHtml}</div>
                         </div>
                     `;
                 }
+            }
 
-                if (faculty.publications && Array.isArray(faculty.publications) && faculty.publications.length > 0) {
+            if (faculty.publications) {
+                const results = Array.isArray(faculty.publications) ? faculty.publications : [faculty.publications];
+                if (results.length > 0 && results[0]) {
                     modalContent += `
                         <div class="detail-section">
                             <div class="detail-title">Selected Publications</div>
                             <ul class="detail-list">
-                                ${faculty.publications.slice(0, 10).map(pub => `<li>${pub}</li>`).join('')}
-                                ${faculty.publications.length > 10 ? `<li class="more-items">+ ${faculty.publications.length - 10} more publications</li>` : ''}
+                                ${results.slice(0, 10).map(pub => `<li>${pub}</li>`).join('')}
+                                ${results.length > 10 ? `<li class="more-items">+ ${results.length - 10} more publications</li>` : ''}
                             </ul>
                         </div>
                     `;
                 }
-
-                document.getElementById('modalBody').innerHTML = modalContent;
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-
-            } catch (error) {
-                console.error('Error fetching faculty details:', error);
-                alert('Could not load faculty details. Please try again.');
             }
+
+            document.getElementById('modalBody').innerHTML = modalContent;
+            
+            console.log("Modal content set, showing modal...");
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Scroll modal to top
+            modal.scrollTop = 0;
+            
+            console.log("Modal should now be visible");
+            console.log("Modal classes:", modal.className);
+            console.log("Modal display:", window.getComputedStyle(modal).display);
+            
+            setTimeout(notifyHeight, 100);
         }
 
         function closeModal() {
+            console.log("Closing modal");
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
+            setTimeout(notifyHeight, 100);
         }
 
+        // Close modal when clicking outside
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
+            console.log("Modal clicked, target:", e.target.className);
+            if (e.target === modal || e.target.classList.contains('modal')) {
                 closeModal();
             }
         });
 
+        // Close modal on Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && modal.classList.contains('active')) {
+                console.log("Escape pressed, closing modal");
                 closeModal();
             }
         });
