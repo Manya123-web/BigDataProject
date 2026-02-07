@@ -31,7 +31,10 @@
             margin: 0;
             padding: 0;
             width: 100%;
+            width: 100%;
             overflow-x: hidden;
+            overflow-y: hidden !important;
+            /* Let Streamlit handle scrolling */
         }
 
         body {
@@ -370,9 +373,20 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
-            50% { transform: scale(1.05); box-shadow: 0 4px 20px rgba(245, 158, 11, 0.6); }
-            100% { transform: scale(1); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+            0% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 20px rgba(245, 158, 11, 0.6);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            }
         }
 
         .top-match {
@@ -776,10 +790,55 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Initial Loading Overlay */
+        #initial-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f8fafc;
+            z-index: 1000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #initial-loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Scrollbar Fixes */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Initial Loader -->
+    <div id="initial-loader">
+        <div class="loading-spinner" style="width: 60px; height: 60px; border-width: 5px;"></div>
+        <p style="margin-top: 1rem; color: #64748b; font-weight: 500;">Loading Faculty Finder...</p>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero-section">
@@ -859,6 +918,17 @@
         const statsBar = document.getElementById('statsBar');
         const resultCount = document.getElementById('resultCount');
         const modal = document.getElementById('facultyModal');
+        const initialLoader = document.getElementById('initial-loader');
+
+        // Hide loader when data is ready
+        function hideInitialLoader() {
+            if (initialLoader && !initialLoader.classList.contains('fade-out')) {
+                initialLoader.classList.add('fade-out');
+                setTimeout(() => {
+                    initialLoader.style.display = 'none';
+                }, 500);
+            }
+        }
 
         let timeout = null;
         let allFacultyData = [];
@@ -894,6 +964,7 @@
                 noResults.classList.remove('hidden');
                 loading.classList.add('hidden');
             }
+            hideInitialLoader();
             notifyHeight();
         });
 
@@ -928,6 +999,7 @@
             }
 
             setTimeout(notifyHeight, 100);
+            hideInitialLoader();
         }
 
         // Client-side filtering for instant results
