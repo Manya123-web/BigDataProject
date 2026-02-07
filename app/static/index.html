@@ -977,105 +977,7 @@
             window.location.href = window.location.origin + window.location.pathname;
         }
 
-        // Hybrid Candidate Filtering + Semantic Reranking
-        function hybridSearch(query, candidates) {
-            if (!query || !query.trim()) return candidates;
-
-            const queryLower = query.toLowerCase().trim();
-            const queryTerms = queryLower.split(/\s+/);
-
-            // Step 1: Categorize results by match type
-            const exactMatches = [];
-            const keywordMatches = [];
-            const semanticMatches = [];
-
-            for (const faculty of candidates) {
-                let matchType = null;
-                let relevanceScore = 0;
-
-                // Priority 1: Exact name match
-                if (faculty.name && faculty.name.toLowerCase() === queryLower) {
-                    exactMatches.push({ faculty, score: 1.0 });
-                    continue;
-                }
-
-                // Priority 2: Keyword matches in primary fields
-                let primaryFieldScore = 0;
-                
-                if (faculty.name && faculty.name.toLowerCase().includes(queryLower)) {
-                    primaryFieldScore = 0.95;
-                    keywordMatches.push({ faculty, score: primaryFieldScore, field: 'name' });
-                    continue;
-                }
-
-                // Check multiple keywords in topics field
-                if (faculty.topics) {
-                    const topicsLower = faculty.topics.toLowerCase();
-                    let topicsMatches = 0;
-                    queryTerms.forEach(term => {
-                        if (topicsLower.includes(term)) topicsMatches++;
-                    });
-                    if (topicsMatches > 0) {
-                        const topicsScore = 0.90 * (topicsMatches / queryTerms.length);
-                        keywordMatches.push({ faculty, score: topicsScore, field: 'topics' });
-                        continue;
-                    }
-                }
-
-                // Check research, specializations, biography
-                let contentFieldScore = 0;
-                if (faculty.research && faculty.research.toLowerCase().includes(queryLower)) {
-                    contentFieldScore = Math.max(contentFieldScore, 0.85);
-                }
-                if (faculty.specializations && faculty.specializations.toLowerCase().includes(queryLower)) {
-                    contentFieldScore = Math.max(contentFieldScore, 0.82);
-                }
-                if (faculty.biography && faculty.biography.toLowerCase().includes(queryLower)) {
-                    contentFieldScore = Math.max(contentFieldScore, 0.78);
-                }
-
-                if (contentFieldScore > 0) {
-                    keywordMatches.push({ faculty, score: contentFieldScore, field: 'content' });
-                    continue;
-                }
-
-                // Priority 3: Use semantic similarity score from backend
-                if (faculty.similarity_score && faculty.similarity_score > 0.5) {
-                    semanticMatches.push({ faculty, score: faculty.similarity_score });
-                }
-            }
-
-            // Step 2: Combine results with semantic reranking
-            const combined = [
-                ...exactMatches,
-                ...keywordMatches.sort((a, b) => b.score - a.score),
-                ...semanticMatches.sort((a, b) => b.score - a.score)
-            ];
-
-            // Step 3: Remove duplicates while preserving best score
-            const seen = new Set();
-            const final = [];
-            
-            for (const item of combined) {
-                const id = item.faculty.id;
-                if (!seen.has(id)) {
-                    item.faculty.hybrid_score = item.score;
-                    final.push(item.faculty);
-                    seen.add(id);
-                }
-            }
-
-            // Step 4: Final reranking with combined signals
-            final.sort((a, b) => {
-                const scoreA = a.hybrid_score || a.similarity_score || 0;
-                const scoreB = b.hybrid_score || b.similarity_score || 0;
-                return scoreB - scoreA;
-            });
-
-            return final;
-        }
-
-        // Client-side filtering for instant results with hybrid search
+        // Client-side filtering for instant results
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
 
@@ -1088,22 +990,23 @@
                 return;
             }
 
-            // Apply hybrid filtering + semantic reranking
-            const rerankedResults = hybridSearch(query, allFacultyData);
+            const filtered = allFacultyData.filter(f =>
+                (f.name && f.name.toLowerCase().includes(query)) ||
+                (f.topics && f.topics.toLowerCase().includes(query)) ||
+                (f.research && f.research.toLowerCase().includes(query)) ||
+                (f.specializations && f.specializations.toLowerCase().includes(query)) ||
+                (f.biography && f.biography.toLowerCase().includes(query))
+            );
 
-            currentDisplayedResults = rerankedResults;
-            renderResults(rerankedResults);
-            resultCount.innerText = rerankedResults.length;
-            document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${rerankedResults.length}</span> matches (Hybrid filtered + Semantically ranked)`;
+            currentDisplayedResults = filtered;
+            renderResults(filtered);
+            resultCount.innerText = filtered.length;
+            document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${filtered.length}</span> matches`;
 
-            // Generate recommendation for hybrid filtered results
-            if (rerankedResults.length > 0) {
-                generateRecommendation(rerankedResults, query);
-            } else {
-                document.getElementById('recommendationBanner').classList.add('hidden');
-            }
+            // Hide recommendation banner during filter
+            document.getElementById('recommendationBanner').classList.add('hidden');
 
-            if (rerankedResults.length === 0) {
+            if (filtered.length === 0) {
                 noResults.classList.remove('hidden');
             } else {
                 noResults.classList.add('hidden');
@@ -1148,10 +1051,7 @@
                     imageHtml = `<div class="placeholder-bg">${initials}</div>`;
                 }
                 const works = (faculty.works_count || 0).toLocaleString();
-                
-                // Use hybrid_score if available (from hybrid search), otherwise fall back to similarity_score
-                const scoreToUse = faculty.hybrid_score !== undefined ? faculty.hybrid_score : (faculty.similarity_score || 1.0);
-                const similarity = Math.round(scoreToUse * 100);
+                const similarity = Math.round((faculty.similarity_score || 1.0) * 100);
 
                 return `
                     <div class="faculty-card fade-in" style="animation-delay: ${index * 0.05}s" onclick="showFacultyDetails('${faculty.id}')">
