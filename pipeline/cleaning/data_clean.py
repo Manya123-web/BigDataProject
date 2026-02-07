@@ -4,7 +4,11 @@ import json
 import re
 import unicodedata
 
-df=pd.read_json("../data/raw/faculty_output.json")
+# Paths relative to project root
+RAW_DATA_PATH = "pipeline/data/raw/faculty_output.json"
+PROCESSED_DATA_PATH = "pipeline/data/processed/faculty_cleaned.csv"
+
+df=pd.read_json(RAW_DATA_PATH)
 print(f"Data loaded: {len(df)} rows")
 
 # %%
@@ -176,7 +180,7 @@ df = df.where(pd.notnull(df), None)
 
 # %%
 df.to_csv(
-    "../data/processed/faculty_cleaned.csv",
+    PROCESSED_DATA_PATH,
     index=False
 )
 

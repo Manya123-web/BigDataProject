@@ -2,13 +2,18 @@ import sqlite3
 import faiss
 import pickle
 import os
+import sys
 
-from model import get_model
+# Add project root to sys.path to allow imports from pipeline
+sys.path.append(os.getcwd())
 
-DB_PATH = "../outputs/faculty.db"
-INDEX_PATH = "data/faiss.index"
-IDS_PATH = "data/faculty_ids.pkl"
-META_PATH = "data/metadata.pkl"
+from pipeline.recommender.model import get_model
+
+# Paths relative to project root
+DB_PATH = "pipeline/outputs/faculty.db"
+INDEX_PATH = "pipeline/recommender/data/faiss.index"
+IDS_PATH = "pipeline/recommender/data/faculty_ids.pkl"
+META_PATH = "pipeline/recommender/data/metadata.pkl"
 
 
 def fetch_faculty():
@@ -126,7 +131,7 @@ def build_index():
     index = faiss.IndexFlatIP(dim)  # cosine similarity
     index.add(embeddings)
 
-    os.makedirs("data", exist_ok=True)
+    os.makedirs(os.path.dirname(INDEX_PATH), exist_ok=True)
 
     print("Saving index + metadata...")
     faiss.write_index(index, INDEX_PATH)
@@ -137,7 +142,7 @@ def build_index():
     with open(META_PATH, "wb") as f:
         pickle.dump(metadata, f)
 
-    print("\n✅ FAISS index built successfully!")
+    print("\n FAISS index built successfully!")
     print(f"Total faculty indexed: {len(ids)}")
 
 

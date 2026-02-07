@@ -1,6 +1,9 @@
 import pandas as pd
 
-df = pd.read_json("data/raw/faculty_output.json")
+# Path relative to project root
+RAW_DATA_PATH = "pipeline/data/raw/faculty_output.json"
+
+df = pd.read_json(RAW_DATA_PATH)
 n = len(df)
 
 print("\n=== RAW DATA OVERVIEW ===")

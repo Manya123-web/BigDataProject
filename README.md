@@ -1,8 +1,8 @@
 # Faculty Finder – Data Engineering Pipeline
 
-An end-to-end **data engineering pipeline** to scrape, clean, analyze, store, and serve faculty profile data from the DA-IICT website via a REST API.
+An end-to-end **data engineering pipeline** to scrape, clean, analyze, store, and serve faculty profile data from the DA-IICT website via a REST API and a Semantic Search Engine.
 
-The project focuses on **data quality, reproducibility, and clean pipeline design**, making it suitable for academic evaluation and real-world data engineering use cases.
+The project focuses on **data quality, reproducibility, and clean pipeline design**, utilizing modern NLP techniques for semantic search.
 
 ---
 
@@ -11,17 +11,19 @@ The project focuses on **data quality, reproducibility, and clean pipeline desig
 ### Pipeline Flow
 
 ```
-SCRAPE → CLEAN → ANALYZE → LOAD → SERVE
-  ↓        ↓        ↓        ↓       ↓
-JSON     CSV   Quality Stats  SQLite  FastAPI
+SCRAPE → CLEAN → ANALYZE → LOAD → EMBED → SERVE
+  ↓        ↓        ↓        ↓       ↓      ↓
+JSON     CSV   Quality Stats  SQLite  FAISS  FastAPI / Streamlit
 ```
 
 ### Key Features
-- Web scraping using Scrapy
-- Robust data cleaning and normalization
-- Raw vs processed data quality analysis
-- Relational storage using SQLite
-- REST API built with FastAPI
+- **Web Scraping**: robust extraction using Scrapy.
+- **Data Cleaning**: normalization and deduplication.
+- **Data Quality**: Analysis of missingness and field coverage.
+- **Relational Storage**: SQLite for structured data.
+- **Semantic Search**: Recommender system using Sentence Transformers & FAISS.
+- **Interactive UI**: Streamlit app for exploring faculty and semantic search.
+- **REST API**: FastAPI endpoints for data access.
 
 ---
 
@@ -32,7 +34,8 @@ BigDataProject/
 ├── app/
 │   ├── main.py              # FastAPI endpoints
 │   ├── db.py                # Database connection
-│   └── schemas.py           # Pydantic response models
+│   ├── schemas.py           # Pydantic response models
+│   └── static/              # Static assets
 │
 ├── pipeline/
 │   ├── scraping/
@@ -48,9 +51,16 @@ BigDataProject/
 │   │   ├── raw_data_stats.py
 │   │   └── processed_data_stats.py
 │   │
+│   ├── recommender/
+│   │   ├── build_index.py   # Generate embeddings & FAISS index
+│   │   ├── model.py         # Transformer model loader
+│   │   ├── search.py        # Search logic
+│   │   └── loader.py        # Startup loader
+│   │
 │   ├── data/
 │   │   ├── raw/             # faculty_output.json
-│   │   └── processed/       # faculty_cleaned.csv
+│   │   ├── processed/       # faculty_cleaned.csv
+│   │   └── faiss.index      # (Generated) Vector index
 │   │
 │   └── outputs/
 │       └── faculty.db       # SQLite database
@@ -58,6 +68,8 @@ BigDataProject/
 ├── logs/
 ├── venv/
 ├── .gitignore
+├── requirements.txt
+├── streamlit_app.py         # Search & Recommender UI
 └── README.md
 ```
 
@@ -72,24 +84,28 @@ git clone <repo-url>
 cd BigDataProject
 
 python -m venv venv
-venv\Scripts\activate        # Windows
-# source venv/bin/activate   # Linux/Mac
+# Activate Virtual Environment:
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+# source venv/bin/activate
 
-pip install scrapy pandas sqlalchemy fastapi uvicorn pydantic
+pip install -r requirements.txt
 ```
 
 ---
 
 ### 2. Scrape Faculty Data
 
+> **Note**: You must navigate to the scrapy project directory to run the spider.
+
 ```bash
-scrapy crawl faculty -O pipeline/data/raw/faculty_output.json
+cd pipeline/scraping/faculty_finder
+scrapy crawl faculty -O ../../../data/raw/faculty_output.json
+cd ../../../..  # Return to root for next steps
 ```
 
-**Output**
-```
-pipeline/data/raw/faculty_output.json
-```
+**Output**: `pipeline/data/raw/faculty_output.json`
 
 ---
 
@@ -106,26 +122,32 @@ python pipeline/cleaning/data_clean.py
 - Merge fragmented publication entries
 - Normalize empty or invalid values to null
 
-**Output**
-```
-pipeline/data/processed/faculty_cleaned.csv
-```
+**Output**: `pipeline/data/processed/faculty_cleaned.csv`
 
 ---
 
-### 4. Data Quality Analysis
+### 4. Data Quality Analysis (Optional)
 
 ```bash
 python pipeline/analysis/raw_data_stats.py
 python pipeline/analysis/processed_data_stats.py
 ```
 
-**Purpose**
-- Identify hidden missingness in raw data
-- Measure true coverage after cleaning
-- Evaluate record-level completeness
+### Key Statistics
+**Raw Data (Before Cleaning)**
+- Total Records: 112
+- Website Links Missing: 56.2%
+- Biography Missing: 37.5%
 
-This step is **read-only** and does not modify data.
+**Processed Data (After Cleaning)**
+- Total Records: 112
+- Average Record Completeness: 81.2%
+- Education Coverage: 98.2%
+- Website Links Coverage: 43.8%
+
+> Raw data shows 100% "presence" for many fields because they contain empty strings or placeholders. Processed statistics reflect **actual data usability** after cleaning.
+
+
 
 ---
 
@@ -135,23 +157,42 @@ This step is **read-only** and does not modify data.
 python pipeline/transformation/load_to_db.py
 ```
 
-**Database**
-- SQLite database: `pipeline/outputs/faculty.db`
-- 111 faculty records
-- Semi-structured fields stored as JSON text
+**Output**: `pipeline/outputs/faculty.db` (SQLite)
 
 ---
 
-### 6. Start API Server
+### 6. Build Search Index (Recommender)
+
+Generate vector embeddings for semantic search.
+
+```bash
+python pipeline/recommender/build_index.py
+```
+
+
+**Output**:
+- `pipeline/recommender/data/faiss.index`
+- `pipeline/recommender/data/metadata.pkl`
+
+---
+
+### 7. Run Applications
+
+#### **Option A: Streamlit UI (Recommended)**
+Interactive interface for search and recommendations.
+
+```bash
+streamlit run streamlit_app.py
+```
+*Access at http://localhost:8501*
+
+#### **Option B: FastAPI Server**
+Backend REST API.
 
 ```bash
 uvicorn app.main:app --reload
 ```
-
-Swagger UI:
-```
-http://127.0.0.1:8000/docs
-```
+*Docs at http://127.0.0.1:8000/docs*
 
 ---
 
@@ -160,74 +201,36 @@ http://127.0.0.1:8000/docs
 | Endpoint | Description |
 |--------|------------|
 | `GET /faculty` | Fetch all faculty |
-| `GET /faculty/{id}` | Fetch faculty by ID |
+| `GET /faculty/{id}` | Fetch by ID |
 | `GET /faculty/name/{name}` | Search by name |
-| `GET /faculty/type/{type}` | Filter by faculty type |
+| `GET /faculty/type/{type}` | Filter by type |
+| `GET /recommend?query=...` | **Semantic Search** (Vector-based) |
+| `GET /faculty/search/keyword/{kw}` | Keyword Search |
 
 ---
 
-## Example API Response
-
-```json
-{
-  "id": 1,
-  "name": "Yash Vasavada",
-  "email": ["yash_vasavada@dau.ac.in"],
-  "phone": {
-    "landline": ["07968261634"]
-  },
-  "education": "PhD (EE), Virginia Tech",
-  "specializations": "Communication, Signal Processing",
-  "faculty_type": "faculty",
-  "publications": ["Paper 1", "Paper 2"]
-}
-```
-
----
-
-## Data Statistics (Processed)
-
-- Total Records: 111
-- Rows with ≥1 missing field: ~67%
-- Email Coverage: ~99%
-- Phone Coverage: ~68%
-- Publication Coverage: ~61%
-
-Raw data shows near-100% field presence due to empty placeholders.  
-Processed statistics reflect **actual data usability**.
 
 ---
 
 ## Technology Stack
 
-- Scrapy – Web scraping
-- Pandas – Data cleaning and analysis
-- SQLite – Relational storage
-- SQLAlchemy – Database abstraction
-- FastAPI – REST API framework
-- Uvicorn – ASGI server
-- Pydantic – Data validation
-
----
-
-## Future Work
-
-- Semantic search using embeddings (FAISS / ChromaDB)
-- Faculty similarity search
-- Streamlit or React frontend
-- Scheduled scraping and incremental updates
+- **Scraping**: Scrapy
+- **Data Engineering**: Pandas, SQLAlchemy, SQLite
+- **API**: FastAPI, Uvicorn, Pydantic
+- **ML/Search**: Sentence Transformers (all-mpnet-base-v2), FAISS, Torch
+- **Frontend**: Streamlit, HTML/JS injection
 
 ---
 
 ## Contributors
 
-**Manya Choradiya** (202518022)  
-GitHub: https://github.com/Manya123-web  
+**Manya Choradiya** (202518022)
+GitHub: [Manya123-web](https://github.com/Manya123-web)
 
-**Ambuj Tripathi** (202518021)  
-GitHub: https://github.com/Shaneat8  
+**Ambuj Tripathi** (202518021)
+GitHub: [Shaneat8](https://github.com/Shaneat8)
 
 ---
 
-**Project Type**: Data Engineering Pipeline  
-**Focus**: Scraping · Data Quality · API Serving
+**Project Type**: Data Engineering & AI
+**Focus**: Scraping · Semantic Search · Clean Architecture

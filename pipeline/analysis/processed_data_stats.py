@@ -1,6 +1,9 @@
 import pandas as pd
 
-df = pd.read_csv("data/processed/faculty_cleaned.csv")
+# Path relative to project root
+DATA_PATH = "pipeline/data/processed/faculty_cleaned.csv"
+
+df = pd.read_csv(DATA_PATH)
 n = len(df)
 
 print("\n=== PROCESSED DATA OVERVIEW ===")
