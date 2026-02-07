@@ -158,7 +158,7 @@
             gap: 2rem;
         }
 
-        /* Portrait Card Styling */
+        /* Portrait Card Styling - REVERTED to name below image */
         .faculty-card {
             background: var(--white);
             border-radius: 20px;
@@ -168,7 +168,7 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            aspect-ratio: 3 / 4;
+            cursor: pointer;
         }
 
         .faculty-card:hover {
@@ -178,9 +178,10 @@
 
         .card-image-container {
             position: relative;
-            flex: 1;
+            height: 220px;
             width: 100%;
             overflow: hidden;
+            background: #f1f5f9;
         }
 
         .card-image {
@@ -192,37 +193,28 @@
 
         .faculty-card:hover .card-image { transform: scale(1.1); }
 
-        /* Gradient Overlay for Name/Role */
-        .card-image-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60%;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 40%, transparent 100%);
+        .card-content {
+            padding: 1.5rem;
+            flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
-            padding: 2rem 1.5rem 1.5rem;
-            color: white;
-            transition: height 0.3s ease;
         }
 
-        .faculty-card:hover .card-image-overlay { height: 70%; }
-
         .card-name {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 700;
             margin-bottom: 0.25rem;
             line-height: 1.2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            color: var(--text-dark);
         }
 
         .card-role {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            font-weight: 400;
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 500;
             margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .card-footer {
@@ -230,20 +222,22 @@
             justify-content: space-between;
             align-items: center;
             margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
         }
 
         .match-badge {
-            background: var(--primary);
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
             padding: 0.3rem 0.8rem;
             border-radius: 50px;
             font-size: 0.75rem;
             font-weight: 600;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
         }
 
         .works-count {
             font-size: 0.75rem;
-            opacity: 0.8;
+            color: var(--text-light);
             font-weight: 500;
         }
 
@@ -689,13 +683,13 @@
                     <div class="faculty-card fade-in" style="animation-delay: ${index * 0.05}s" onclick="showFacultyDetails('${faculty.id}')">
                         <div class="card-image-container">
                             ${imageHtml}
-                            <div class="card-image-overlay">
-                                <h3 class="card-name">${faculty.name || 'Unknown'}</h3>
-                                <p class="card-role">${faculty.faculty_type || 'Faculty Member'}</p>
-                                <div class="card-footer">
-                                    <span class="match-badge">${similarity}% Match</span>
-                                    <span class="works-count">${works} Publications</span>
-                                </div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-name">${faculty.name || 'Unknown'}</h3>
+                            <p class="card-role">${faculty.faculty_type || 'Faculty Member'}</p>
+                            <div class="card-footer">
+                                <span class="match-badge">${similarity}% Match</span>
+                                <span class="works-count">${works} Publications</span>
                             </div>
                         </div>
                     </div>
@@ -708,7 +702,6 @@
         function showFacultyDetails(facultyId) {
             console.log("=== Opening Modal for ID:", facultyId);
 
-            // 1. Robust lookup: Search in both current and all data
             let faculty = currentDisplayedResults.find(f => String(f.id) == String(facultyId));
             if (!faculty) {
                 faculty = allFacultyData.find(f => String(f.id) == String(facultyId));
@@ -720,11 +713,9 @@
                 return;
             }
 
-            // Update Header
             document.getElementById('modalName').textContent = faculty.name || 'Unknown';
             document.getElementById('modalRole').textContent = faculty.faculty_type || 'Faculty Member';
 
-            // Portrait/Placeholder handling
             const portraitContainer = document.getElementById('modalPortraitContainer');
             if (faculty.image_url) {
                 portraitContainer.innerHTML = `<img src="${faculty.image_url}" class="modal-portrait" alt="${faculty.name}">`;
@@ -779,10 +770,44 @@
                 }
             });
 
-            // Contact Information
+            // Contact Information - CLEAN FORMATTING
             let contactHtml = '';
-            if (faculty.email) contactHtml += `<div>📧 Email: ${Array.isArray(faculty.email) ? faculty.email.join(', ') : faculty.email}</div>`;
-            if (faculty.phone) contactHtml += `<div>📞 Phone: ${typeof faculty.phone === 'object' ? Object.values(faculty.phone).join(', ') : faculty.phone}</div>`;
+            
+            // Format Emails
+            let emails = faculty.email;
+            if (emails) {
+                if (typeof emails === 'string') {
+                    try { emails = JSON.parse(emails); } catch(e) {}
+                }
+                const emailList = Array.isArray(emails) ? emails : [emails];
+                const validEmails = emailList.filter(e => e && typeof e === 'string');
+                if (validEmails.length > 0) {
+                    contactHtml += `<div>📧 Email: ${validEmails.join(', ')}</div>`;
+                }
+            }
+
+            // Format Phones
+            let phone = faculty.phone;
+            if (phone) {
+                if (typeof phone === 'string') {
+                    try { phone = JSON.parse(phone); } catch(e) {}
+                }
+                if (typeof phone === 'object' && !Array.isArray(phone)) {
+                    // Combine mobile and landline
+                    const allPhones = [];
+                    if (phone.mobile) allPhones.push(...(Array.isArray(phone.mobile) ? phone.mobile : [phone.mobile]));
+                    if (phone.landline) allPhones.push(...(Array.isArray(phone.landline) ? phone.landline : [phone.landline]));
+                    if (allPhones.length > 0) {
+                        contactHtml += `<div>📞 Phone: ${allPhones.join(', ')}</div>`;
+                    }
+                } else {
+                    const phoneList = Array.isArray(phone) ? phone : [phone];
+                    const validPhones = phoneList.filter(p => p);
+                    if (validPhones.length > 0) {
+                        contactHtml += `<div>📞 Phone: ${validPhones.join(', ')}</div>`;
+                    }
+                }
+            }
             
             if (contactHtml) {
                 modalContent += `
@@ -793,17 +818,21 @@
                 `;
             }
 
-            // Publications from OpenAlex
+            // Publications
             if (faculty.publications) {
-                const pubs = Array.isArray(faculty.publications) ? faculty.publications : [faculty.publications];
-                const validPubs = pubs.filter(p => p && p.trim());
+                let pubs = faculty.publications;
+                if (typeof pubs === 'string') {
+                    try { pubs = JSON.parse(pubs); } catch(e) {}
+                }
+                const pubList = Array.isArray(pubs) ? pubs : [pubs];
+                const validPubs = pubList.filter(p => p && p.trim());
                 if (validPubs.length > 0) {
                     modalContent += `
                         <div class="detail-section">
-                            <div class="detail-title">Selected Publications (OpenAlex)</div>
+                            <div class="detail-title">Selected Publications</div>
                             <ul class="detail-list">
                                 ${validPubs.slice(0, 10).map(pub => `<li>${pub}</li>`).join('')}
-                                ${validPubs.length > 10 ? `<li style="list-style: none; color: #94a3b8; font-style: italic; font-size: 0.9rem; margin-top: 0.5rem;">+ ${validPubs.length - 10} more publications in OpenAlex</li>` : ''}
+                                ${validPubs.length > 10 ? `<li style="list-style: none; color: #94a3b8; font-style: italic; font-size: 0.9rem; margin-top: 0.5rem;">+ ${validPubs.length - 10} more publications</li>` : ''}
                             </ul>
                         </div>
                     `;
