@@ -1010,13 +1010,6 @@
             // Generate recommendation for filtered results
             if (filtered.length > 0) {
                 generateRecommendation(filtered, query);
-                // Show ranking basis explanation
-                showRankingBasis();
-            } else {
-                document.getElementById('recommendationBanner').classList.add('hidden');
-            }
-            if (filtered.length > 0) {
-                generateRecommendation(filtered, query);
             } else {
                 document.getElementById('recommendationBanner').classList.add('hidden');
             }
