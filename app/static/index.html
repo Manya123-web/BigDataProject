@@ -385,12 +385,6 @@
             box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);
         }
 
-        .recommendation-banner.top-match {
-            background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
-            border-left: 4px solid #fbbf24;
-            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3);
-        }
-
         .banner-icon {
             font-size: 2rem;
             flex-shrink: 0;
@@ -410,16 +404,6 @@
         .banner-text {
             color: #78350f;
             line-height: 1.6;
-        }
-
-        .ranking-info {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.6);
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-weight: 600;
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
         }
 
         /* Animations */
@@ -1011,8 +995,15 @@
                     searchInput.value = query;
                     document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${data.length}</span> faculty matches`;
 
-                    // Show enhanced recommendation banner using the recommendation function
-                    generateRecommendation(data, query);
+                    // Show recommendation banner if first result is a high match
+                    const topMatch = data[0];
+                    if (topMatch.similarity_score >= 0.8) {
+                        const recBanner = document.getElementById('recommendationBanner');
+                        const recText = document.getElementById('recommendationText');
+                        const topicStr = topMatch.topics ? `highlighted by their work in ${topMatch.topics.split(',').slice(0, 2).join(', ')}` : 'their relevant research';
+                        recText.innerHTML = `For a query on <strong>"${query}"</strong>, we recommend approaching <strong>${topMatch.name}</strong>, ${topicStr}. They have <strong>${topMatch.works_count || 0}</strong> publications.`;
+                        recBanner.classList.remove('hidden');
+                    }
                 } else {
                     document.querySelector('.stats-text').innerHTML = `Showing <span class="stats-count">${data.length}</span> faculty members`;
                 }
@@ -1056,12 +1047,8 @@
             resultCount.innerText = filtered.length;
             document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${filtered.length}</span> matches`;
 
-            // Show enhanced recommendation banner for top match
-            if (filtered.length > 0) {
-                generateRecommendation(filtered, query);
-            } else {
-                document.getElementById('recommendationBanner').classList.add('hidden');
-            }
+            // Hide recommendation banner during filter
+            document.getElementById('recommendationBanner').classList.add('hidden');
 
             if (filtered.length === 0) {
                 noResults.classList.remove('hidden');
@@ -1090,62 +1077,7 @@
             }
         });
 
-        // Generate intelligent recommendation based on filtered results
-        function generateRecommendation(filteredFaculty, query) {
-            if (filteredFaculty.length === 0) {
-                document.getElementById('recommendationBanner').classList.add('hidden');
-                return;
-            }
-
-            const recBanner = document.getElementById('recommendationBanner');
-            const recText = document.getElementById('recommendationText');
-            
-            // Get top 3 matches for evaluation
-            const topMatches = filteredFaculty.slice(0, 3);
-            const topMatch = topMatches[0];
-            const secondMatch = topMatches.length > 1 ? topMatches[1] : null;
-            const thirdMatch = topMatches.length > 2 ? topMatches[2] : null;
-
-            // Build recommendation message
-            let recommendation = `<strong>🎯 Top Recommendation:</strong> <strong style="font-size: 1.05em; color: #92400e;">${topMatch.name}</strong>`;
-            
-            // Add why they're recommended
-            const topics = topMatch.topics ? topMatch.topics.split(',').slice(0, 2).map(t => t.trim()).join(' & ') : 'their expertise';
-            const pubs = topMatch.works_count || 0;
-            const similarity = Math.round((topMatch.similarity_score || 1.0) * 100);
-
-            recommendation += `<div style="margin-top: 0.5rem; font-size: 0.95rem; color: #78350f;">
-                <strong>Why:</strong> With a ${similarity}% match score and ${pubs} publications, they are the best fit for your query on <strong>"${query}"</strong>. Their expertise in ${topics} aligns perfectly with your research needs.
-            </div>`;
-
-            // Add alternatives if available
-            if (secondMatch || thirdMatch) {
-                recommendation += `<div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(0,0,0,0.1); font-size: 0.9rem; color: #78350f;">
-                    <strong>Other Great Options:</strong> `;
-                
-                if (secondMatch) {
-                    const sim2 = Math.round((secondMatch.similarity_score || 1.0) * 100);
-                    recommendation += `2️⃣ <strong>${secondMatch.name}</strong> (${sim2}% match)`;
-                }
-                
-                if (thirdMatch && secondMatch) {
-                    recommendation += `, `;
-                }
-                
-                if (thirdMatch) {
-                    const sim3 = Math.round((thirdMatch.similarity_score || 1.0) * 100);
-                    recommendation += `3️⃣ <strong>${thirdMatch.name}</strong> (${sim3}% match)`;
-                }
-                
-                recommendation += `</div>`;
-            }
-
-            recText.innerHTML = recommendation;
-            recBanner.classList.remove('hidden');
-            recBanner.classList.add('top-match');
-        }
-
-        
+        function renderResults(facultyList) {
             if (facultyList.length === 0) {
                 resultsGrid.innerHTML = '';
                 noResults.classList.remove('hidden');
@@ -1165,28 +1097,8 @@
                 const works = (faculty.works_count || 0).toLocaleString();
                 const similarity = Math.round((faculty.similarity_score || 1.0) * 100);
 
-                // Determine ranking badge
-                let rankingClass = 'rank-other';
-                let rankingText = `#${index + 1}`;
-                let cardClass = '';
-                
-                if (index === 0) {
-                    rankingClass = 'rank-1';
-                    rankingText = '🥇';
-                    cardClass = 'top-match';
-                } else if (index === 1) {
-                    rankingClass = 'rank-2';
-                    rankingText = '🥈';
-                    cardClass = 'top-match';
-                } else if (index === 2) {
-                    rankingClass = 'rank-3';
-                    rankingText = '🥉';
-                    cardClass = 'top-match';
-                }
-
                 return `
-                    <div class="faculty-card fade-in ${cardClass}" style="animation-delay: ${index * 0.05}s" onclick="showFacultyDetails('${faculty.id}')">
-                        <div class="ranking-badge ${rankingClass}">${rankingText}</div>
+                    <div class="faculty-card fade-in" style="animation-delay: ${index * 0.05}s" onclick="showFacultyDetails('${faculty.id}')">
                         <div class="card-image-container">
                             ${imageHtml}
                         </div>
