@@ -3,15 +3,19 @@ import requests
 import json
 import time
 
-DB_PATH = "../outputs/faculty.db"
+import os
+
+# Set DB_PATH relative to the script location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(SCRIPT_DIR, "..", "outputs", "faculty.db")
 
 def enrich_faculty():
-    print("Connecting to database...")
+    print(f"Connecting to database at {DB_PATH}...")
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # Get all faculty to enrich
-    cursor.execute("SELECT id, name FROM faculty WHERE openalex_id IS NULL")
+    # Get all faculty to enrich (those without openalex_id OR without publications)
+    cursor.execute("SELECT id, name FROM faculty WHERE openalex_id IS NULL OR publications IS NULL")
     rows = cursor.fetchall()
     
     print(f"Found {len(rows)} faculty members to enrich.")
@@ -49,8 +53,23 @@ def enrich_faculty():
                         SET openalex_id = ?, works_count = ?, topics = ?
                         WHERE id = ?
                     """, (openalex_id, works_count, topics_str, fid))
+
+                    # Fetch Works
+                    print(f"  -> Fetching works for {openalex_id}...")
+                    works_url = f"https://api.openalex.org/works?filter=author.id:{openalex_id}&sort=cited_by_count:desc&per_page=10"
+                    works_response = requests.get(works_url)
+                    if works_response.status_code == 200:
+                        works_data = works_response.json()
+                        works_list = [w.get("title") for w in works_data.get("results", []) if w.get("title")]
+                        if works_list:
+                            cursor.execute("""
+                                UPDATE faculty 
+                                SET publications = ?
+                                WHERE id = ?
+                            """, (json.dumps(works_list, ensure_ascii=False), fid))
+                            print(f"  -> {len(works_list)} works found and saved.")
                     
-                    print(f"  -> Match found! Works: {works_count}, Topics: {topics_str}")
+                    print(f"  -> Match found! Works Count: {works_count}, Topics: {topics_str}")
                 else:
                     print("  -> No match found in OpenAlex.")
             else:

@@ -493,19 +493,53 @@
             box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
         }
 
-        /* Modal - Fixed for Streamlit iframe */
+        /* Modal - Fixed for Internal Scroll */
         .modal {
             display: none;
             position: fixed;
-            /* Keep fixed to overlay correctly */
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: var(--overlay);
             z-index: 999999;
-            overflow-y: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 1rem;
+            overflow: hidden; /* Prevent background scroll */
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 20px;
+            max-width: 1100px;
+            width: 100%;
+            max-height: 90vh;
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            position: relative;
+            padding: 1.5rem 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            flex-shrink: 0;
+        }
+
+        .modal-body {
+            padding: 2rem 2.5rem;
+            overflow-y: auto;
+            flex-grow: 1;
         }
 
         .modal.active {
@@ -622,8 +656,60 @@
             opacity: 0.9;
         }
 
-        .modal-body {
-            padding: 1.5rem 2rem 2rem;
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .biography-text {
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+
+        .read-more-btn {
+            color: var(--primary);
+            background: none;
+            border: none;
+            padding: 0;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+
+        .detail-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .detail-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .detail-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0.25rem;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.25rem;
+            top: -0.1rem;
         }
 
         .detail-section {
@@ -1025,22 +1111,8 @@
 
         // Reset to Home View
         function resetToHome() {
-            searchInput.value = '';
-            currentDisplayedResults = allFacultyData;
-            renderResults(allFacultyData);
-            resultCount.innerText = allFacultyData.length;
-            document.getElementById('recommendationBanner').classList.add('hidden');
-            document.querySelector('.stats-text').innerHTML = `Showing <span class="stats-count">${allFacultyData.length}</span> faculty members`;
-
-            // Remove query param without reload
-            const url = new URL(window.location);
-            url.searchParams.delete('q');
-            window.history.pushState({}, '', url);
-
-            // Scroll to top of results if needed, or hero
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            setTimeout(notifyHeight, 100);
+            // Full reload to reset all data
+            window.location.href = window.location.origin + window.location.pathname;
         }
 
         // Client-side filtering for instant results
@@ -1223,10 +1295,19 @@
 
             sections.forEach(section => {
                 if (faculty[section.key]) {
+                    let content = faculty[section.key];
+                    let needsReadMore = false;
+                    let displayContent = content;
+
+                    if (section.key === 'biography' && content.length > 300) {
+                        needsReadMore = true;
+                        displayContent = `<span class="truncated">${content.substring(0, 300)}...</span><span class="full hidden">${content}</span><button class="read-more-btn" onclick="toggleReadMore(this)">Read More</button>`;
+                    }
+
                     modalContent += `
                         <div class="detail-section">
                             <div class="detail-title">${section.title}</div>
-                            <div class="detail-content">${section.prefix || ''}${faculty[section.key]}</div>
+                            <div class="detail-content biography-text">${section.prefix || ''}${displayContent}</div>
                         </div>
                     `;
                 }
@@ -1234,12 +1315,13 @@
 
             if (faculty.teaching) {
                 const teaching = Array.isArray(faculty.teaching) ? faculty.teaching : [faculty.teaching];
-                if (teaching.length > 0 && teaching[0]) {
+                const validTeaching = teaching.filter(t => t && t.trim());
+                if (validTeaching.length > 0) {
                     modalContent += `
                         <div class="detail-section">
                             <div class="detail-title">Teaching</div>
                             <ul class="detail-list">
-                                ${teaching.map(course => `<li>${course}</li>`).join('')}
+                                ${validTeaching.map(course => `<li>${course}</li>`).join('')}
                             </ul>
                         </div>
                     `;
@@ -1250,20 +1332,22 @@
             let contactHtml = '';
             if (faculty.email) {
                 const emails = Array.isArray(faculty.email) ? faculty.email : [faculty.email];
-                if (emails.length > 0 && emails[0]) {
-                    contactHtml += `<div style="margin-bottom: 0.5rem;">📧 Email: ${emails.join(', ')}</div>`;
+                const validEmails = emails.filter(e => e && e.trim());
+                if (validEmails.length > 0) {
+                    contactHtml += `<div style="margin-bottom: 0.5rem;">📧 Email: ${validEmails.join(', ')}</div>`;
                 }
             }
             if (faculty.phone) {
                 if (typeof faculty.phone === 'object' && !Array.isArray(faculty.phone)) {
                     contactHtml += Object.entries(faculty.phone).map(([key, val]) => {
-                        const valStr = Array.isArray(val) ? val.join(', ') : val;
-                        return `<div style="margin-bottom: 0.5rem;">📞 ${key}: ${valStr}</div>`;
+                        const valStr = Array.isArray(val) ? val.filter(v => v).join(', ') : val;
+                        return valStr ? `<div style="margin-bottom: 0.5rem;">📞 ${key}: ${valStr}</div>` : '';
                     }).join('');
                 } else {
                     const phones = Array.isArray(faculty.phone) ? faculty.phone : [faculty.phone];
-                    if (phones.length > 0 && phones[0]) {
-                        contactHtml += `<div style="margin-bottom: 0.5rem;">📞 Phone: ${phones.join(', ')}</div>`;
+                    const validPhones = phones.filter(p => p);
+                    if (validPhones.length > 0) {
+                        contactHtml += `<div style="margin-bottom: 0.5rem;">📞 Phone: ${validPhones.join(', ')}</div>`;
                     }
                 }
             }
@@ -1282,7 +1366,7 @@
                 try {
                     linksHtml = Object.entries(faculty.website_links).map(([key, val]) => {
                         const urls = Array.isArray(val) ? val : [val];
-                        return urls.map(url => `
+                        return urls.filter(url => url).map(url => `
                             <div style="margin-bottom: 0.5rem;">
                                 🔗 <a href="${url}" target="_blank" class="modal-link">${key}</a>
                             </div>
@@ -1303,14 +1387,15 @@
             }
 
             if (faculty.publications) {
-                const results = Array.isArray(faculty.publications) ? faculty.publications : [faculty.publications];
-                if (results.length > 0 && results[0]) {
+                const pubs = Array.isArray(faculty.publications) ? faculty.publications : [faculty.publications];
+                const validPubs = pubs.filter(p => p && p.trim());
+                if (validPubs.length > 0) {
                     modalContent += `
                         <div class="detail-section">
-                            <div class="detail-title">Selected Publications</div>
+                            <div class="detail-title">Selected Publications (OpenAlex)</div>
                             <ul class="detail-list">
-                                ${results.slice(0, 10).map(pub => `<li>${pub}</li>`).join('')}
-                                ${results.length > 10 ? `<li class="more-items">+ ${results.length - 10} more publications</li>` : ''}
+                                ${validPubs.slice(0, 10).map(pub => `<li>${pub}</li>`).join('')}
+                                ${validPubs.length > 10 ? `<li class="more-items">+ ${validPubs.length - 10} more publications</li>` : ''}
                             </ul>
                         </div>
                     `;
@@ -1322,16 +1407,27 @@
             console.log("Modal content set, showing modal...");
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
-            document.body.style.height = '100vh'; // Lock height to prevent scrolling behind
 
-            // Scroll modal to top
-            modal.scrollTop = 0;
+            // Scroll modal body to top
+            document.querySelector('.modal-body').scrollTop = 0;
 
             console.log("Modal should now be visible");
-            console.log("Modal classes:", modal.className);
-            console.log("Modal display:", window.getComputedStyle(modal).display);
-
             setTimeout(notifyHeight, 100);
+        }
+
+        function toggleReadMore(btn) {
+            const truncated = btn.parentElement.querySelector('.truncated');
+            const full = btn.parentElement.querySelector('.full');
+            if (full.classList.contains('hidden')) {
+                full.classList.remove('hidden');
+                truncated.classList.add('hidden');
+                btn.textContent = 'Read Less';
+            } else {
+                full.classList.add('hidden');
+                truncated.classList.remove('hidden');
+                btn.textContent = 'Read More';
+            }
+            setTimeout(notifyHeight, 50);
         }
 
         function closeModal() {
