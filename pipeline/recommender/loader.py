@@ -23,11 +23,14 @@ def load_all():
         model = SentenceTransformer(MODEL_NAME, device=device)
 
         # Try different possible paths (Search directory relative to execution)
+        # Try different possible paths (Search directory relative to execution)
+        base_dir = os.path.dirname(os.path.abspath(__file__)) # pipeline/recommender
+        root_dir = os.path.dirname(os.path.dirname(base_dir)) # Project root
+
         possible_paths = [
+            (os.path.join(base_dir, "data", "faiss.index"), os.path.join(base_dir, "data", "metadata.pkl")),
             ("pipeline/recommender/data/faiss.index", "pipeline/recommender/data/metadata.pkl"),
-            ("pipeline/data/faiss.index", "pipeline/data/metadata.pkl"),
             ("data/faiss.index", "data/metadata.pkl"),
-            ("../data/faiss.index", "../data/metadata.pkl"),
         ]
 
         index_loaded = False

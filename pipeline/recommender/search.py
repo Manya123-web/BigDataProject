@@ -3,6 +3,8 @@ import os
 import difflib
 
 
+from pipeline.recommender.loader import get_all
+
 def search_faculty(query: str, k: int = 5):
     """
     Hybrid faculty search with database fallback:

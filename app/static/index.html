@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faculty Recommender AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
@@ -24,7 +26,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             margin: 0;
             padding: 0;
             width: 100%;
@@ -188,7 +191,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -318,7 +323,7 @@
             gap: 0.5rem;
         }
 
-        .faculty-name > span:first-child {
+        .faculty-name>span:first-child {
             flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -365,9 +370,20 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
-            50% { transform: scale(1.05); box-shadow: 0 4px 20px rgba(245, 158, 11, 0.6); }
-            100% { transform: scale(1); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+            0% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 20px rgba(245, 158, 11, 0.6);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            }
         }
 
         .top-match {
@@ -449,6 +465,7 @@
             line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             min-height: 2.4em;
@@ -477,10 +494,11 @@
         .modal {
             display: none;
             position: fixed;
+            /* Keep fixed to overlay correctly */
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             background: var(--overlay);
             z-index: 999999;
             overflow-y: auto;
@@ -523,6 +541,7 @@
                 opacity: 0;
                 transform: translateY(50px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -545,7 +564,7 @@
             overflow: hidden;
             margin-bottom: 1rem;
             background: #e2e8f0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .modal-image {
@@ -705,6 +724,7 @@
                 opacity: 0;
                 transform: translateY(40px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -769,6 +789,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- Hero Section -->
@@ -779,17 +800,13 @@
 
         <div class="hero-content">
             <h1 class="hero-title">Discover Your Perfect Faculty Match</h1>
-            <p class="hero-subtitle">Advanced AI-powered semantic search to connect you with the right academic experts</p>
-            
+            <p class="hero-subtitle">Advanced AI-powered semantic search to connect you with the right academic experts
+            </p>
+
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    class="search-input"
-                    placeholder="Search by name, research area, or expertise..."
-                    autofocus
-                >
+                <input type="text" id="searchInput" class="search-input"
+                    placeholder="Search by name, research area, or expertise..." autofocus>
                 <button class="search-btn" id="searchBtn">Search</button>
             </div>
         </div>
@@ -798,14 +815,15 @@
     <!-- Main Content -->
     <section class="main-content">
         <div class="container">
-            
+
             <div id="loading" class="loading hidden">
                 <div class="loading-spinner"></div>
                 <p class="loading-text">Searching our faculty database...</p>
             </div>
 
             <div id="statsBar" class="stats-bar hidden">
-                <span class="stats-text">Found <span id="resultCount" class="stats-count">0</span> faculty matches</span>
+                <span class="stats-text">Found <span id="resultCount" class="stats-count">0</span> faculty
+                    matches</span>
                 <span class="stats-text" style="color: var(--text-light); font-weight: 500;">Sorted by relevance</span>
             </div>
 
@@ -813,7 +831,8 @@
                 <div class="banner-icon">💡</div>
                 <div class="banner-content">
                     <h4 class="banner-title">Expert Recommendation</h4>
-                    <p id="recommendationText" class="banner-text">Based on your query, we recommend approaching [Name] for their extensive work in [Topic].</p>
+                    <p id="recommendationText" class="banner-text">Based on your query, we recommend approaching [Name]
+                        for their extensive work in [Topic].</p>
                 </div>
             </div>
 
@@ -876,7 +895,7 @@
             console.log('=== Page loaded, checking for data ===');
             console.log('INJECTED_RESULTS:', typeof window.INJECTED_RESULTS, window.INJECTED_RESULTS ? window.INJECTED_RESULTS.length : 'undefined');
             console.log('CURRENT_QUERY:', window.CURRENT_QUERY);
-            
+
             if (window.INJECTED_RESULTS && Array.isArray(window.INJECTED_RESULTS)) {
                 console.log("✓ Using injected results:", window.INJECTED_RESULTS.length, "faculty members");
                 handleInjectedResults(window.INJECTED_RESULTS);
@@ -897,18 +916,18 @@
                 renderResults(data);
                 resultCount.innerText = data.length;
                 statsBar.classList.remove('hidden');
-                
+
                 const query = window.CURRENT_QUERY || "";
                 if (query) {
                     searchInput.value = query;
                     document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${data.length}</span> faculty matches`;
-                    
+
                     // Show recommendation banner if first result is a high match
                     const topMatch = data[0];
                     if (topMatch.similarity_score >= 0.8) {
                         const recBanner = document.getElementById('recommendationBanner');
                         const recText = document.getElementById('recommendationText');
-                        const topicStr = topMatch.topics ? `highlighted by their work in ${topMatch.topics.split(',').slice(0,2).join(', ')}` : 'their relevant research';
+                        const topicStr = topMatch.topics ? `highlighted by their work in ${topMatch.topics.split(',').slice(0, 2).join(', ')}` : 'their relevant research';
                         recText.innerHTML = `For a query on <strong>"${query}"</strong>, we recommend approaching <strong>${topMatch.name}</strong>, ${topicStr}. They have <strong>${topMatch.works_count || 0}</strong> publications.`;
                         recBanner.classList.remove('hidden');
                     }
@@ -918,14 +937,14 @@
             } else {
                 noResults.classList.remove('hidden');
             }
-            
+
             setTimeout(notifyHeight, 100);
         }
 
         // Client-side filtering for instant results
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
-            
+
             if (query === "") {
                 currentDisplayedResults = allFacultyData;
                 renderResults(allFacultyData);
@@ -935,9 +954,9 @@
                 return;
             }
 
-            const filtered = allFacultyData.filter(f => 
-                (f.name && f.name.toLowerCase().includes(query)) || 
-                (f.topics && f.topics.toLowerCase().includes(query)) || 
+            const filtered = allFacultyData.filter(f =>
+                (f.name && f.name.toLowerCase().includes(query)) ||
+                (f.topics && f.topics.toLowerCase().includes(query)) ||
                 (f.research && f.research.toLowerCase().includes(query)) ||
                 (f.specializations && f.specializations.toLowerCase().includes(query)) ||
                 (f.biography && f.biography.toLowerCase().includes(query))
@@ -947,16 +966,16 @@
             renderResults(filtered);
             resultCount.innerText = filtered.length;
             document.querySelector('.stats-text').innerHTML = `Found <span class="stats-count">${filtered.length}</span> matches`;
-            
+
             // Hide recommendation banner during filter
             document.getElementById('recommendationBanner').classList.add('hidden');
-            
+
             if (filtered.length === 0) {
                 noResults.classList.remove('hidden');
             } else {
                 noResults.classList.add('hidden');
             }
-            
+
             setTimeout(notifyHeight, 100);
         });
 
@@ -986,7 +1005,7 @@
             }
 
             noResults.classList.add('hidden');
-            
+
             resultsGrid.innerHTML = facultyList.map((faculty, index) => {
                 let imageHtml = '';
                 if (faculty.image_url) {
@@ -998,11 +1017,11 @@
                 const works = (faculty.works_count || 0).toLocaleString();
                 const topics = faculty.topics || "General Research";
                 const similarity = Math.round((faculty.similarity_score || 1.0) * 100);
-                
+
                 // Recommendation logic
                 const isTopMatch = index === 0 && similarity >= 80;
                 const recommendationBadge = isTopMatch ? '<div class="recommendation-badge">⭐ Top Recommendation</div>' : '';
-                
+
                 return `
                     <div class="faculty-card fade-in ${isTopMatch ? 'top-match' : ''}" style="animation-delay: ${index * 0.05}s">
                         <div class="card-image-container">
@@ -1029,10 +1048,10 @@
                     </div>
                 `;
             }).join('');
-            
+
             // Add click listeners to all buttons
             document.querySelectorAll('.view-details-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
+                btn.addEventListener('click', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
                     const facultyId = this.getAttribute('data-faculty-id');
@@ -1040,20 +1059,20 @@
                     showFacultyDetails(facultyId);
                 });
             });
-            
+
             setTimeout(notifyHeight, 100);
         }
 
         function showFacultyDetails(facultyId) {
             console.log("=== Opening Modal ===");
             console.log("Searching for Faculty ID:", facultyId);
-            
+
             // 1. Robust lookup: Search in both current and all data, and use loose comparison
             let faculty = currentDisplayedResults.find(f => String(f.id) == String(facultyId));
             if (!faculty) {
                 faculty = allFacultyData.find(f => String(f.id) == String(facultyId));
             }
-            
+
             if (!faculty) {
                 console.error("Faculty not found. ID searched:", facultyId);
                 console.log("Available Current IDs:", currentDisplayedResults.map(f => f.id));
@@ -1061,7 +1080,7 @@
                 alert('Could not load faculty details. Please try again.');
                 return;
             }
-            
+
             console.log("Found faculty:", faculty.name);
 
             document.getElementById('modalName').textContent = faculty.name || 'Unknown';
@@ -1170,7 +1189,7 @@
                 } catch (e) {
                     console.warn("Error rendering links:", e);
                 }
-                
+
                 if (linksHtml) {
                     modalContent += `
                         <div class="detail-section">
@@ -1197,18 +1216,19 @@
             }
 
             document.getElementById('modalBody').innerHTML = modalContent;
-            
+
             console.log("Modal content set, showing modal...");
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
-            
+            document.body.style.height = '100vh'; // Lock height to prevent scrolling behind
+
             // Scroll modal to top
             modal.scrollTop = 0;
-            
+
             console.log("Modal should now be visible");
             console.log("Modal classes:", modal.className);
             console.log("Modal display:", window.getComputedStyle(modal).display);
-            
+
             setTimeout(notifyHeight, 100);
         }
 
@@ -1216,6 +1236,7 @@
             console.log("Closing modal");
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
+            document.body.style.height = 'auto';
             setTimeout(notifyHeight, 100);
         }
 
@@ -1236,4 +1257,5 @@
         });
     </script>
 </body>
+
 </html>
