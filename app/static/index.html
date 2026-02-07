@@ -31,8 +31,7 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow-x: hidden;
-            overflow-y: auto;
+            overflow: hidden;
             background: #f8fafc;
             font-family: 'Poppins', sans-serif;
             color: var(--text-dark);
@@ -163,7 +162,12 @@
         .search-btn:hover { background: var(--primary-dark); }
 
         /* Main Content */
-        .main-content { padding: 3rem 2rem; }
+        .main-content { 
+            padding: 3rem 2rem;
+            height: calc(100vh - 25vh);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
         .container { max-width: 1400px; margin: 0 auto; }
 
         .stats-bar {
@@ -515,8 +519,8 @@
         .modal-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1.25rem;
-            padding: 1.5rem 2.5rem 1rem 2.5rem;
+            gap: 1rem;
+            padding: 1.25rem 2.5rem 0.75rem 2.5rem;
         }
 
         @media (min-width: 900px) {
@@ -557,7 +561,7 @@
         .detail-section { 
             background: white;
             border-radius: 16px;
-            padding: 1.5rem;
+            padding: 1.25rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             border: 1px solid #e2e8f0;
             transition: all 0.3s ease;
@@ -774,7 +778,7 @@
                 padding: 1rem 1.5rem 0 1.5rem;
             }
             .detail-section {
-                padding: 1.25rem;
+                padding: 1rem;
             }
         }
     </style>
@@ -1134,67 +1138,62 @@
 
             modalContent += `</div>`; // Close modal-grid
 
-            // Contact Information - SIMPLE TEXT DISPLAY
+            // Contact Information - CLEAN STRING DISPLAY
             let contactHtml = '';
             
-            // Format Emails - Simple string display
-            let emails = faculty.email;
-            if (emails) {
-                if (typeof emails === 'string') {
-                    try { 
-                        emails = JSON.parse(emails.replace(/'/g, '"')); 
+            // Helper function to extract clean email/phone strings
+            function cleanContactString(value) {
+                if (!value) return '';
+                
+                let str = value;
+                
+                // If it's already a string, clean it
+                if (typeof str === 'string') {
+                    // Try to parse as JSON first
+                    try {
+                        const parsed = JSON.parse(str.replace(/'/g, '"'));
+                        str = parsed;
                     } catch(e) {
-                        // If parse fails, clean the string
-                        emails = emails.replace(/[\[\]'"]/g, '');
+                        // Not JSON, just clean the string
+                        return str.replace(/[\[\]'"{}]/g, '').trim();
                     }
                 }
                 
-                let emailStr = '';
-                if (Array.isArray(emails)) {
-                    emailStr = emails.filter(e => e && e.includes('@')).join(', ');
-                } else {
-                    emailStr = String(emails).replace(/[\[\]'"]/g, '');
+                // If it's an array, join it
+                if (Array.isArray(str)) {
+                    return str.filter(item => item && item.toString().trim())
+                              .map(item => item.toString().trim())
+                              .join(', ');
                 }
                 
-                if (emailStr && emailStr.trim()) {
-                    contactHtml += `<div style="margin-bottom: 0.75rem;"><strong style="color: #1e40af;">📧 Email:</strong> ${emailStr}</div>`;
+                // If it's an object (like {mobile: [...], landline: [...]})
+                if (typeof str === 'object') {
+                    const values = [];
+                    Object.values(str).forEach(val => {
+                        if (Array.isArray(val)) {
+                            values.push(...val);
+                        } else if (val) {
+                            values.push(val);
+                        }
+                    });
+                    return values.filter(v => v && v.toString().trim())
+                                 .map(v => v.toString().trim())
+                                 .join(', ');
                 }
+                
+                return str.toString().trim();
+            }
+            
+            // Format Emails
+            const emailStr = cleanContactString(faculty.email);
+            if (emailStr && emailStr.includes('@')) {
+                contactHtml += `<div style="margin-bottom: 0.75rem;"><strong style="color: #1e40af;">📧 Email:</strong> ${emailStr}</div>`;
             }
 
-            // Format Phones - Simple string display
-            let phone = faculty.phone;
-            if (phone) {
-                let phoneStr = '';
-                
-                if (typeof phone === 'string') {
-                    try { 
-                        phone = JSON.parse(phone.replace(/'/g, '"')); 
-                    } catch(e) {
-                        phoneStr = phone.replace(/[\[\]'"]/g, '');
-                    }
-                }
-                
-                if (typeof phone === 'object' && !Array.isArray(phone)) {
-                    // Combine mobile and landline
-                    const allPhones = [];
-                    if (phone.mobile) {
-                        const mobiles = Array.isArray(phone.mobile) ? phone.mobile : [phone.mobile];
-                        allPhones.push(...mobiles);
-                    }
-                    if (phone.landline) {
-                        const landlines = Array.isArray(phone.landline) ? phone.landline : [phone.landline];
-                        allPhones.push(...landlines);
-                    }
-                    phoneStr = allPhones.filter(p => p).join(', ');
-                } else if (Array.isArray(phone)) {
-                    phoneStr = phone.filter(p => p).join(', ');
-                } else if (!phoneStr) {
-                    phoneStr = String(phone).replace(/[\[\]'"]/g, '');
-                }
-                
-                if (phoneStr && phoneStr.trim()) {
-                    contactHtml += `<div><strong style="color: #1e40af;">📞 Phone:</strong> ${phoneStr}</div>`;
-                }
+            // Format Phones
+            const phoneStr = cleanContactString(faculty.phone);
+            if (phoneStr && phoneStr.length > 3) {
+                contactHtml += `<div><strong style="color: #1e40af;">📞 Phone:</strong> ${phoneStr}</div>`;
             }
             
             if (contactHtml) {
