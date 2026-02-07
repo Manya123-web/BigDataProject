@@ -791,6 +791,24 @@
             }
         }
 
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
         /* Initial Loading Overlay */
         #initial-loader {
             position: fixed;
@@ -843,7 +861,10 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <nav class="navbar">
-            <div class="logo">DAIICT Faculty Finder</div>
+            <div class="logo" onclick="resetToHome()" style="cursor: pointer;">DAIICT Faculty Finder</div>
+            <div class="nav-links">
+                <button class="nav-btn" onclick="resetToHome()">Home</button>
+            </div>
         </nav>
 
         <div class="hero-content">
@@ -1000,6 +1021,26 @@
 
             setTimeout(notifyHeight, 100);
             hideInitialLoader();
+        }
+
+        // Reset to Home View
+        function resetToHome() {
+            searchInput.value = '';
+            currentDisplayedResults = allFacultyData;
+            renderResults(allFacultyData);
+            resultCount.innerText = allFacultyData.length;
+            document.getElementById('recommendationBanner').classList.add('hidden');
+            document.querySelector('.stats-text').innerHTML = `Showing <span class="stats-count">${allFacultyData.length}</span> faculty members`;
+
+            // Remove query param without reload
+            const url = new URL(window.location);
+            url.searchParams.delete('q');
+            window.history.pushState({}, '', url);
+
+            // Scroll to top of results if needed, or hero
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            setTimeout(notifyHeight, 100);
         }
 
         // Client-side filtering for instant results
