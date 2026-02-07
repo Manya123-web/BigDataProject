@@ -1151,40 +1151,17 @@
                 const works = (faculty.works_count || 0).toLocaleString();
                 const similarity = Math.round((faculty.similarity_score || 1.0) * 100);
 
-                // Professional ranking badges with icons and tooltips
-                let rankingBadge = '';
-                let cardClass = '';
-                let rankingInfo = '';
-                
-                if (index === 0) {
-                    rankingBadge = `<div style="position: absolute; top: 12px; left: 12px; width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 2px solid white; title='Rank 1: Best Match'" title="Rank 1: Best Match"><i class="fas fa-crown" style="font-size: 1.5rem;"></i></div>`;
-                    cardClass = 'style="border: 2px solid #fbbf24; box-shadow: 0 12px 35px rgba(251, 191, 36, 0.25);"';
-                    rankingInfo = '<span style="font-size: 0.7rem; color: #f59e0b; font-weight: 600; margin-top: 0.25rem;">🔝 BEST MATCH</span>';
-                } else if (index === 1) {
-                    rankingBadge = `<div style="position: absolute; top: 12px; left: 12px; width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 2px solid white; title='Rank 2: Very Good Match'" title="Rank 2: Very Good Match"><i class="fas fa-medal" style="font-size: 1.5rem;"></i></div>`;
-                    cardClass = 'style="border: 2px solid #d1d5db; box-shadow: 0 12px 35px rgba(100, 116, 139, 0.15);"';
-                    rankingInfo = '<span style="font-size: 0.7rem; color: #6b7280; font-weight: 600; margin-top: 0.25rem;">⭐ STRONG MATCH</span>';
-                } else if (index === 2) {
-                    rankingBadge = `<div style="position: absolute; top: 12px; left: 12px; width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 2px solid white; title='Rank 3: Good Match'" title="Rank 3: Good Match"><i class="fas fa-certificate" style="font-size: 1.5rem;"></i></div>`;
-                    cardClass = 'style="border: 2px solid #fbbf24; box-shadow: 0 12px 35px rgba(251, 191, 36, 0.15);"';
-                    rankingInfo = '<span style="font-size: 0.7rem; color: #f59e0b; font-weight: 600; margin-top: 0.25rem;">✓ GOOD MATCH</span>';
-                }
-
                 return `
-                    <div class="faculty-card fade-in" ${cardClass} style="animation-delay: ${index * 0.05}s; position: relative;" onclick="showFacultyDetails('${faculty.id}')">
-                        ${rankingBadge}
+                    <div class="faculty-card fade-in" style="animation-delay: ${index * 0.05}s;" onclick="showFacultyDetails('${faculty.id}')">
                         <div class="card-image-container">
                             ${imageHtml}
                         </div>
                         <div class="card-content">
                             <h3 class="card-name">${faculty.name || 'Unknown'}</h3>
                             <p class="card-role">${faculty.faculty_type || 'Faculty Member'}</p>
-                            <div style="display: flex; flex-direction: column; align-items: flex-start; width: 100%;">
-                                <div class="card-footer">
-                                    <span class="match-badge">${similarity}% Match</span>
-                                    <span class="works-count">${works} Publications</span>
-                                </div>
-                                ${rankingInfo}
+                            <div class="card-footer">
+                                <span class="match-badge">${similarity}% Match</span>
+                                <span class="works-count">${works} Publications</span>
                             </div>
                         </div>
                     </div>
