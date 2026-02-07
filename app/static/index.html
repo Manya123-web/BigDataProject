@@ -31,7 +31,8 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
+            height: auto;
             overflow-x: hidden;
             overflow-y: auto;
             background: #f8fafc;
@@ -42,7 +43,7 @@
         /* Hero Section */
         .hero-section {
             position: relative;
-            min-height: 15vh;
+            min-height: 50vh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -166,15 +167,8 @@
         /* Main Content */
         .main-content { 
             padding: 3rem 2rem;
-            height: calc(100vh - 25vh);
-            overflow-y: auto;
-            overflow-x: hidden;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
-        }
-
-        .main-content::-webkit-scrollbar {
-            display: none; /* Chrome/Safari/Opera */
+            min-height: auto;
+            overflow: visible;
         }
         .container { max-width: 1400px; margin: 0 auto; }
 
@@ -198,7 +192,7 @@
             gap: 2rem;
         }
 
-        /* Portrait Card Styling - REVERTED to name below image */
+        /* Portrait Card Styling */
         .faculty-card {
             background: var(--white);
             border-radius: 20px;
@@ -289,51 +283,6 @@
             border-radius: 50px;
             font-size: 0.75rem;
             font-weight: 600;
-        }
-
-        /* Ranking Badges */
-        .ranking-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1rem;
-            color: white;
-            z-index: 10;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            border: 2px solid white;
-        }
-
-        .ranking-badge.rank-1 {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-        }
-
-        .ranking-badge.rank-2 {
-            background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
-        }
-
-        .ranking-badge.rank-3 {
-            background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
-        }
-
-        .ranking-badge.rank-other {
-            background: rgba(37, 99, 235, 0.8);
-        }
-
-        /* Faculty Card Gold highlight for top matches */
-        .faculty-card.top-match {
-            border: 2px solid #fbbf24;
-            box-shadow: 0 12px 35px rgba(251, 191, 36, 0.25);
-        }
-
-        .faculty-card.top-match:hover {
-            box-shadow: 0 15px 45px rgba(251, 191, 36, 0.35);
         }
 
         .works-count {
@@ -582,7 +531,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 1rem;
-            padding: 0.5rem 2.5rem 0.75rem 2.5rem;
+            padding: 0.75rem 2rem 0.75rem 2rem;
         }
 
         @media (min-width: 900px) {
@@ -734,7 +683,7 @@
             gap: 0.75rem;
             margin-bottom: 0;
             flex-wrap: wrap;
-            padding: 0.25rem 2rem 0 2rem;
+            padding: 0.75rem 2rem 0 2rem;
         }
         
         .stat-item {
@@ -820,11 +769,9 @@
                 padding: 1.25rem 1.5rem; 
                 gap: 1rem;
             }
-            .modal-grid {
-                display: grid;
-                grid-template-columns: 1fr;
+            .modal-grid { 
+                padding: 0.75rem 1.5rem 0.75rem 1.5rem; 
                 gap: 1rem;
-                padding: 0.5rem 2rem 0.75rem 2rem;
             }
             .modal-portrait, .modal-portrait-placeholder { 
                 width: 70px; 
@@ -839,7 +786,7 @@
             }
             .stat-value { font-size: 1.5rem; }
             .modal-stats {
-                padding: 1rem 1.5rem 0 1.5rem;
+                padding: 0.75rem 1.5rem 0 1.5rem;
             }
             .detail-section {
                 padding: 1rem;
@@ -1262,7 +1209,7 @@
             
             if (contactHtml) {
                 modalContent += `
-                    <div class="detail-section" style="margin: 0 2.5rem 1.5rem 2.5rem;">
+                    <div class="detail-section" style="margin: 0 2rem 1.5rem 2rem;">
                         <div class="detail-title"><i class="fas fa-address-book" style="margin-right: 10px; color: #2563eb;"></i>Contact Information</div>
                         <div class="detail-content">${contactHtml}</div>
                     </div>
@@ -1282,7 +1229,7 @@
                     const hasMore = validPubs.length > 5;
                     
                     modalContent += `
-                        <div class="detail-section full-width" style="margin: 0 2.5rem 2.5rem 2.5rem;">
+                        <div class="detail-section full-width" style="margin: 0 2rem 2rem 2rem;">
                             <div class="detail-title"><i class="fas fa-book" style="margin-right: 10px; color: #2563eb;"></i>Key Publications</div>
                             <ul class="detail-list publications-list">
                                 ${displayPubs.map(pub => `<li>${pub}</li>`).join('')}
@@ -1300,7 +1247,12 @@
 
             document.getElementById('modalBody').innerHTML = modalContent;
             modal.classList.add('active');
+            
+            // Lock body scroll when modal opens
             document.body.style.overflow = 'hidden';
+            document.body.style.height = '100vh';
+            document.documentElement.style.overflow = 'hidden';
+            
             document.getElementById('modalBody').scrollTop = 0;
             
             setTimeout(notifyHeight, 100);
@@ -1337,8 +1289,12 @@
         function closeModal() {
             console.log("Closing modal");
             modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-            document.body.style.height = 'auto';
+            
+            // Unlock body scroll when modal closes
+            document.body.style.overflow = '';
+            document.body.style.height = '';
+            document.documentElement.style.overflow = '';
+            
             setTimeout(notifyHeight, 100);
         }
 
