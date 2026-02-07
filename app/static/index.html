@@ -366,7 +366,7 @@
             z-index: 999999;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: 1rem;
             overflow-y: auto;
         }
 
@@ -374,69 +374,78 @@
 
         .modal-content {
             background: white;
-            border-radius: 20px;
-            max-width: 1400px;
-            width: 95%;
-            max-height: 85vh;
+            border-radius: 16px;
+            max-width: 1200px;
+            width: 92%;
+            max-height: 88vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             box-shadow: 0 25px 60px rgba(0,0,0,0.5);
-            animation: modalScale 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: modalScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: auto;
         }
 
         @keyframes modalScale {
-            from { transform: scale(0.9); opacity: 0; }
+            from { transform: scale(0.95); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
 
         .modal-header {
-            padding: 1.5rem 2.5rem;
+            padding: 1.25rem 2rem;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 1.25rem;
             position: relative;
             flex-shrink: 0;
         }
 
         .modal-portrait {
-            width: 90px;
-            height: 90px;
+            width: 75px;
+            height: 75px;
             border-radius: 50%;
             border: 3px solid white;
             object-fit: cover;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             background: #e2e8f0;
         }
 
         .modal-portrait-placeholder {
-            width: 90px;
-            height: 90px;
+            width: 75px;
+            height: 75px;
             border-radius: 50%;
             border: 3px solid white;
             background: #e2e8f0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: #94a3b8;
         }
 
-        .modal-title-group h2 { font-size: 1.8rem; margin-bottom: 0.25rem; }
-        .modal-title-group p { font-size: 1rem; opacity: 0.9; }
+        .modal-title-group h2 { 
+            font-size: 1.5rem; 
+            margin-bottom: 0.2rem;
+            font-weight: 700;
+        }
+        .modal-title-group p { 
+            font-size: 0.9rem; 
+            opacity: 0.95;
+            font-weight: 500;
+        }
 
         .modal-body {
-            padding: 2rem 2.5rem;
+            padding: 1.5rem 2rem 2rem 2rem;
             overflow-y: auto;
             flex: 1;
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 #f1f5f9;
         }
 
-        .modal-body::-webkit-scrollbar { width: 8px; }
+        .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-track { background: #f1f5f9; }
         .modal-body::-webkit-scrollbar-thumb { 
             background: #cbd5e1; 
@@ -446,46 +455,78 @@
             background: #94a3b8; 
         }
 
+        /* Two-column layout for better space usage */
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 900px) {
+            .modal-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .modal-grid .detail-section.full-width {
+                grid-column: 1 / -1;
+            }
+        }
+
         .close-modal {
             position: absolute;
-            top: 1.2rem; right: 1.2rem;
+            top: 1rem; right: 1rem;
             background: rgba(255,255,255,0.2);
             border: none;
-            width: 36px; height: 36px;
+            width: 32px; height: 32px;
             border-radius: 50%;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             cursor: pointer;
             transition: 0.3s;
             display: flex; align-items: center; justify-content: center;
         }
-        .close-modal:hover { background: rgba(255,255,255,0.4); transform: rotate(90deg); }
+        .close-modal:hover { 
+            background: rgba(255,255,255,0.35); 
+            transform: rotate(90deg); 
+        }
 
-        /* Detail Elements - More Compact */
-        .detail-section { margin-bottom: 1.8rem; }
+        /* Detail Elements - Optimized Spacing */
+        .detail-section { 
+            margin-bottom: 1.5rem;
+        }
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
         .detail-title {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 700;
             color: var(--primary);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.6rem;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.5rem;
             border-bottom: 2px solid #eff6ff;
-            padding-bottom: 0.4rem;
+            padding-bottom: 0.35rem;
         }
         .detail-content { 
-            font-size: 0.95rem; 
+            font-size: 0.9rem; 
             color: #475569; 
             line-height: 1.6; 
         }
 
-        .detail-list { list-style: none; }
+        .detail-list { 
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
         .detail-list li {
             position: relative;
-            padding-left: 1.5rem;
-            margin-bottom: 0.6rem;
+            padding-left: 1.3rem;
+            margin-bottom: 0.5rem;
             color: #475569;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .detail-list li:last-child {
+            margin-bottom: 0;
         }
         .detail-list li::before {
             content: "•";
@@ -493,40 +534,53 @@
             left: 0;
             color: var(--primary);
             font-weight: 800;
-            font-size: 1.3rem;
-            top: -0.2rem;
+            font-size: 1.2rem;
+            top: -0.15rem;
         }
 
         .read-more-btn {
             color: var(--primary);
-            background: none; border: none;
-            font-weight: 600; cursor: pointer;
-            margin-top: 0.5rem;
+            background: none; 
+            border: none;
+            font-weight: 600; 
+            cursor: pointer;
+            margin-top: 0.4rem;
             display: inline-block;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            text-decoration: underline;
+        }
+        .read-more-btn:hover {
+            color: var(--primary-dark);
         }
 
         .modal-stats {
             display: flex;
-            gap: 1.5rem;
+            gap: 1rem;
             margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
         .stat-item {
-            background: #f1f5f9;
-            padding: 0.8rem 1.2rem;
-            border-radius: 12px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
             text-align: center;
-            min-width: 110px;
+            min-width: 100px;
+            flex: 1;
+            max-width: 140px;
         }
         .stat-label { 
-            font-size: 0.7rem; 
+            font-size: 0.65rem; 
             color: #64748b; 
             text-transform: uppercase; 
-            margin-bottom: 0.2rem; 
-            font-weight: 600; 
+            margin-bottom: 0.25rem; 
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
-        .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+        .stat-value { 
+            font-size: 1.4rem; 
+            font-weight: 700; 
+            color: var(--primary);
+        }
 
         .no-results { text-align: center; padding: 5rem 2rem; opacity: 0.7; }
 
@@ -550,22 +604,32 @@
         @media (max-width: 768px) {
             .navbar { padding: 1rem; }
             .hero-title { font-size: 2rem; }
-            .modal { padding: 0; }
+            .modal { padding: 0.5rem; }
             .modal-content { 
-                max-height: 100vh; 
-                height: 100vh;
-                border-radius: 0; 
+                max-height: 94vh; 
+                height: auto;
+                border-radius: 12px; 
                 max-width: 100%;
-                width: 100%;
+                width: 98%;
             }
             .modal-header { 
-                flex-direction: column; 
-                text-align: center; 
-                padding: 1.5rem; 
+                flex-direction: row;
+                text-align: left; 
+                padding: 1rem 1.5rem; 
+                gap: 1rem;
             }
-            .modal-body { padding: 1.5rem; }
-            .modal-portrait, .modal-portrait-placeholder { width: 80px; height: 80px; }
-            .modal-title-group h2 { font-size: 1.5rem; }
+            .modal-body { padding: 1.25rem 1.5rem 1.5rem 1.5rem; }
+            .modal-portrait, .modal-portrait-placeholder { 
+                width: 65px; 
+                height: 65px; 
+            }
+            .modal-title-group h2 { font-size: 1.25rem; }
+            .modal-title-group p { font-size: 0.8rem; }
+            .stat-item {
+                min-width: 90px;
+                padding: 0.6rem 0.8rem;
+            }
+            .stat-value { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -887,15 +951,16 @@
                         <div class="stat-value">${faculty.works_count || 0}</div>
                     </div>
                 </div>
+                <div class="modal-grid">
             `;
 
             const sections = [
-                { title: 'Research Areas', key: 'topics' },
-                { title: 'Education', key: 'education' },
-                { title: 'Specializations', key: 'specializations' },
-                { title: 'Research Interests', key: 'research' },
-                { title: 'Biography', key: 'biography', isExpandable: true },
-                { title: 'Office Address', key: 'address' }
+                { title: 'Research Areas', key: 'topics', fullWidth: false },
+                { title: 'Education', key: 'education', fullWidth: false },
+                { title: 'Specializations', key: 'specializations', fullWidth: false },
+                { title: 'Research Interests', key: 'research', fullWidth: false },
+                { title: 'Biography', key: 'biography', isExpandable: true, fullWidth: true },
+                { title: 'Office Address', key: 'address', fullWidth: false }
             ];
 
             sections.forEach(section => {
@@ -903,22 +968,25 @@
                     let content = faculty[section.key];
                     let displayContent = content;
 
-                    if (section.isExpandable && content.length > 400) {
+                    if (section.isExpandable && content.length > 350) {
                         displayContent = `
-                            <span class="truncated">${content.substring(0, 400)}...</span>
+                            <span class="truncated">${content.substring(0, 350)}...</span>
                             <span class="full hidden">${content}</span>
                             <button class="read-more-btn" onclick="toggleReadMore(this)">Read More</button>
                         `;
                     }
 
+                    const fullWidthClass = section.fullWidth ? ' full-width' : '';
                     modalContent += `
-                        <div class="detail-section">
+                        <div class="detail-section${fullWidthClass}">
                             <div class="detail-title">${section.title}</div>
                             <div class="detail-content">${displayContent}</div>
                         </div>
                     `;
                 }
             });
+
+            modalContent += `</div>`; // Close modal-grid
 
             // Contact Information - CLEAN FORMATTING
             let contactHtml = '';
@@ -968,7 +1036,7 @@
                 `;
             }
 
-            // Publications
+            // Publications - Full Width
             if (faculty.publications) {
                 let pubs = faculty.publications;
                 if (typeof pubs === 'string') {
@@ -978,11 +1046,11 @@
                 const validPubs = pubList.filter(p => p && p.trim());
                 if (validPubs.length > 0) {
                     modalContent += `
-                        <div class="detail-section">
+                        <div class="detail-section full-width">
                             <div class="detail-title">Selected Publications</div>
                             <ul class="detail-list">
-                                ${validPubs.slice(0, 10).map(pub => `<li>${pub}</li>`).join('')}
-                                ${validPubs.length > 10 ? `<li style="list-style: none; color: #94a3b8; font-style: italic; font-size: 0.9rem; margin-top: 0.5rem;">+ ${validPubs.length - 10} more publications</li>` : ''}
+                                ${validPubs.slice(0, 8).map(pub => `<li>${pub}</li>`).join('')}
+                                ${validPubs.length > 8 ? `<li style="list-style: none; color: #94a3b8; font-style: italic; font-size: 0.85rem; margin-top: 0.5rem;">+ ${validPubs.length - 8} more publications</li>` : ''}
                             </ul>
                         </div>
                     `;
