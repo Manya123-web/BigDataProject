@@ -11,7 +11,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Full Screen
 st.markdown("""
     <style>
         #MainMenu {visibility: hidden;}
@@ -25,10 +24,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Initialize database session
 db = SessionLocal()
 
-# Helper for JSON parsing
 def parse_faculty_json(f):
     """Parse JSON fields in faculty data"""
     json_fields = ["phone", "email", "teaching", "publications", "website_links"]
@@ -42,12 +39,10 @@ def parse_faculty_json(f):
                 pass
     return f
 
-# Handle search query from URL parameters
 query = st.query_params.get("q", "")
 results = []
 
 if query:
-    # Perform semantic search
     try:
         results = search_faculty(query, k=50)
         for r in results:
@@ -55,7 +50,6 @@ if query:
     except Exception as e:
         st.error(f"Error performing search: {e}")
 else:
-    # Default to all faculty if no query
     try:
         res = db.execute(text("SELECT * FROM faculty LIMIT 200"))
         results = [dict(row) for row in res.mappings().all()]
@@ -65,7 +59,6 @@ else:
     except Exception as e:
         st.error(f"Error loading faculty: {e}")
 
-# Read the HTML file
 html_path = Path("app/static/index.html")
 if not html_path.exists():
     st.error(f"HTML file not found at {html_path}")
@@ -73,7 +66,6 @@ if not html_path.exists():
 
 html_template = html_path.read_text(encoding="utf-8")
 
-# Inject data into the HTML
 data_injection = f"""
 <script>
     window.INJECTED_RESULTS = {json.dumps(results, ensure_ascii=False)};
@@ -81,16 +73,12 @@ data_injection = f"""
 </script>
 """
 
-# Insert before </body>
 html_content = html_template.replace("</body>", f"{data_injection}</body>")
 
-# Render the HTML component with dynamic height
-# Height will be automatically adjusted by the component
 st.components.v1.html(
     html_content,
-    height=3000,  # Initial height, will be adjusted by JavaScript
+    height=3000,  
     scrolling=True
 )
 
-# Close database session
 db.close()
